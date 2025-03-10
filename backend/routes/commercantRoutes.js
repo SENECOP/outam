@@ -83,7 +83,10 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Erreur lors de la connexion." });
     }
 });
-
+// Route pour récupérer le profil de l'utilisateur
+router.get("/profile", authMiddleware, (req, res) => {
+    res.json({ message: "Profil de l'utilisateur", user: req.user });
+});
 // Route pour le rafraîchissement du token
 router.post("/refresh-token", async (req, res) => {
     try {
