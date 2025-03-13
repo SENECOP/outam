@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
@@ -76,7 +77,7 @@ function Login() {
               />
               Se souvenir de moi
             </label>
-            <a href="/mot-de-passe-oublie">Mot de passe oublié ?</a>
+            <Link to="/forgot-password">Mot de passe oublié ?</Link>
           </div>
 
           <button type="submit" className="login-btn">SE CONNECTER</button>

@@ -189,7 +189,7 @@ router.post("/forgot-password", async (req, res) => {
         await commerçant.save();
 
         // Construire l'URL de réinitialisation
-        const resetUrl = `http://localhost:5000/api/commercant/reset-password/${resetToken}`;
+        const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
 
         // Envoyer l'email
         const htmlContent = `
