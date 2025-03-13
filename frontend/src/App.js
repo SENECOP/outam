@@ -1,31 +1,20 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import React from "react";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Register from './pages/Register';
+import Login from './pages/Login';
 
-import RegisterCommercant from "./components/RegisterCommercant.js";
-import "./App.css"; 
+
 
 function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    axios.get("http://localhost:3000/")
-      .then(response => setMessage(response.data))
-      .catch(error => console.log(error));
-  }, []);
-
   return (
-    
-    
-    <div className="App">
-       <RegisterCommercant />
-  </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        {/* Ajoute d'autres routes ici si nécessaire */}
+      </Routes>
+    </Router>
   );
-
-  
-    
-  
 }
+
 export default App;
-
-

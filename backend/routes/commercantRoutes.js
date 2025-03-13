@@ -5,8 +5,11 @@ const validator = require("validator");
 const cookieParser = require("cookie-parser"); // Assurez-vous que le cookie-parser est utilisé
 const Commercant = require("../models/Commercant");
 const authMiddleware = require("../middlewares/authMiddleware");
+const sendEmail = require("../utils/mailer");
 
 const router = express.Router();
+const crypto = require("crypto");
+
 
 // Fonction pour valider le mot de passe
 const validatePassword = (password) => {
@@ -33,7 +36,49 @@ const validatePassword = (password) => {
     }
     return null;
 };
+router.post("/register", async (req, res) => {
+    try {
+        const { nom, email, motDePasse, typeCommercant } = req.body;
 
+        // Valider l'email
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ message: "Veuillez fournir un email valide." });
+        }
+
+        // Valider le mot de passe
+        const passwordError = validatePassword(motDePasse);
+        if (passwordError) {
+            return res.status(400).json({ message: passwordError });
+        }
+
+        // Vérifier si l'email existe déjà
+        const existingCommercant = await Commercant.findOne({ email });
+        if (existingCommercant) {
+            return res.status(400).json({ message: "Cet email est déjà utilisé." });
+        }
+
+        // Hacher le mot de passe
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(motDePasse, salt);
+
+        // Créer un nouveau commerçant
+        const newCommercant = new Commercant({
+            nom,
+            email,
+            motDePasse: hashedPassword,
+            typeCommercant,
+        });
+
+        // Sauvegarder le commerçant dans la base de données
+        await newCommercant.save();
+
+        // Réponse réussie
+        res.status(201).json({ message: "Commerçant inscrit avec succès !", commerçant: newCommercant });
+    } catch (error) {
+        console.error("Erreur lors de l'inscription :", error);
+        res.status(500).json({ message: "Erreur lors de l'inscription." });
+    }
+});
 // Route pour la connexion
 router.post("/login", async (req, res) => {
     try {
@@ -42,13 +87,13 @@ router.post("/login", async (req, res) => {
         // Vérifier si l'email existe
         const commerçant = await Commercant.findOne({ email });
         if (!commerçant) {
-            return res.status(400).json({ message: "Email ou mot de passe incorrect." });
+            return res.status(400).json({ message: "Email introuvable." });
         }
 
         // Vérifier le mot de passe
         const isPasswordValid = await bcrypt.compare(motDePasse, commerçant.motDePasse);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: "Email ou mot de passe incorrect." });
+            return res.status(400).json({ message: "incorrect." });
         }
 
         // Créer le Refresh Token avec une durée longue
@@ -115,6 +160,104 @@ router.post("/refresh-token", async (req, res) => {
     } catch (error) {
         console.error("Erreur lors du rafraîchissement du token :", error);
         res.status(500).json({ message: "Erreur lors du rafraîchissement du token." });
+    }
+});
+
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Vérifier si l'email est fourni
+        if (!email) {
+            return res.status(400).json({ message: "Veuillez fournir un email." });
+        }
+
+        // Vérifier si l'utilisateur existe
+        const commerçant = await Commercant.findOne({ email });
+        if (!commerçant) {
+            return res.status(400).json({ message: "Email introuvable." });
+        }
+
+        // Générer un token sécurisé
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Hasher le token et définir la date d'expiration
+        commerçant.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+        commerçant.resetPasswordExpires = Date.now() + 3600000; // 1 heure
+
+        // Sauvegarder les modifications dans la base de données
+        await commerçant.save();
+
+        // Construire l'URL de réinitialisation
+        const resetUrl = `http://localhost:5000/api/commercant/reset-password/${resetToken}`;
+
+        // Envoyer l'email
+        const htmlContent = `
+            <h2>Réinitialisation de votre mot de passe</h2>
+            <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
+            <a href="${resetUrl}" target="_blank">Réinitialiser mon mot de passe</a>
+            <p>Ce lien expire dans 1 heure.</p>
+        `;
+
+        await sendEmail(commerçant.email, "Réinitialisation de votre mot de passe", htmlContent);
+
+        // Réponse réussie
+        res.status(200).json({ message: "Email envoyé avec succès !" });
+
+    } catch (error) {
+        console.error("Erreur forgot-password:", error);
+        res.status(500).json({ message: "Erreur lors de la demande de réinitialisation." });
+    }
+});
+
+// 🔑 **Route pour réinitialiser le mot de passe**
+router.post("/reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+
+        // Vérifier si le nouveau mot de passe est fourni
+        if (!newPassword) {
+            return res.status(400).json({ message: "Veuillez fournir un nouveau mot de passe." });
+        }
+
+        // Hasher le token reçu
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+        // Trouver l'utilisateur avec le token valide et non expiré
+        const commerçant = await Commercant.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        // Vérifier si l'utilisateur existe et si le token est valide
+        if (!commerçant) {
+            return res.status(400).json({ message: "Token invalide ou expiré." });
+        }
+
+        // Valider le nouveau mot de passe
+        const passwordError = validatePassword(newPassword);
+        if (passwordError) {
+            return res.status(400).json({ message: passwordError });
+        }
+
+        // Hasher le nouveau mot de passe
+        const salt = await bcrypt.genSalt(10);
+        commerçant.motDePasse = await bcrypt.hash(newPassword, salt);
+
+        // Supprimer le token et la date d'expiration
+        commerçant.resetPasswordToken = undefined;
+        commerçant.resetPasswordExpires = undefined;
+
+        // Sauvegarder les modifications dans la base de données
+        await commerçant.save();
+
+        // Réponse réussie
+        res.status(200).json({ message: "Mot de passe réinitialisé avec succès !" });
+
+    } catch (error) {
+        console.error("Erreur reset-password:", error);
+        res.status(500).json({ message: "Erreur lors de la réinitialisation du mot de passe." });
     }
 });
 

@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const restaurantSchema = new mongoose.Schema({
-    idEtablissement: { type: mongoose.Schema.Types.ObjectId, ref: "Etablissement", required: true }
+    idEtablissement: { type: mongoose.Schema.Types.ObjectId, ref: "Etablissement", required: true },
+    cuisineType: { type: String, required: true }
 });
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);

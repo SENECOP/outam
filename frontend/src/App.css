@@ -4,7 +4,7 @@ body {
   padding: 0;
   font-family: Arial, sans-serif;
   height: 100vh;
-  background: url('C:\Users\nfds\Desktop\SENECOP\outam\frontend\public\background_img.png') no-repeat center center fixed;
+  background-image: url('/public/assets/bg.png');  /* Correctement référencé ici */
   background-size: cover;
   display: flex;
   justify-content: center;
