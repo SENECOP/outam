@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "./Login.css";
 
+
 function Login() {
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
@@ -82,7 +83,8 @@ function Login() {
 
           <button type="submit" className="login-btn">SE CONNECTER</button>
         </form>
-
+       <p className="register-link"><Link to="/register">Créer un compte</Link>
+      </p>
         <p className="support">
           ⚠ <span>Service Client :</span> <a href="tel:+3338432233">33 843 22 33</a>
         </p>

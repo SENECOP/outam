@@ -53,6 +53,9 @@ const Login = () => {
           {error && <p className="error-message">{error}</p>}
           <button type="submit">SE CONNECTER</button>
         </form>
+        {/* Ajout du lien vers l'inscription */}
+        <p className="register-link">Nouveau ici ? <a href="/register">Créer un compte</a>
+        </p>
         <p className="support">☎ Service Client : 33 842 23 23</p>
       </div>
     </div>
