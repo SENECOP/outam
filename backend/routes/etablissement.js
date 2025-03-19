@@ -55,6 +55,41 @@ router.post("/", async (req, res) => {
         return res.status(500).json({ message: "Erreur serveur", error: error.message });
     }
 });
+// 📌 Route pour afficher tous les établissements avec leurs détails
+router.get("/showetab", async (req, res) => {
+    try {
+        // Récupérer tous les établissements
+        const etablissements = await Etablissement.find();
+
+        // Parcourir chaque établissement pour récupérer ses détails spécifiques
+        const result = await Promise.all(etablissements.map(async (etablissement) => {
+            let details;
+
+            switch (etablissement.type) {
+                case "hotel":
+                    details = await Hotel.findOne({ idEtablissement: etablissement._id });
+                    break;
+                case "restaurant":
+                    details = await Restaurant.findOne({ idEtablissement: etablissement._id });
+                    break;
+                case "supermarche":
+                    details = await Supermarche.findOne({ idEtablissement: etablissement._id });
+                    break;
+                default:
+                    details = null;
+            }
+
+            return {
+                ...etablissement._doc,
+                details
+            };
+        }));
+
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ message: "Erreur serveur", error: error.message });
+    }
+});
 
 
 module.exports = router;

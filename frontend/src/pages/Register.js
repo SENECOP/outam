@@ -21,7 +21,7 @@ function Register() {
 
       // Si l'inscription réussie, on peut rediriger l'utilisateur
       setMessage(response.data.message);
-      navigate('/login'); // Rediriger vers la page de login après l'inscription
+      navigate('/'); // Rediriger vers la page de login après l'inscription
     } catch (error) {
       // Si erreur, on affiche le message d'erreur
       if (error.response) {

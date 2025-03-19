@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import "./Login.css";
-
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -23,11 +20,9 @@ function Login() {
         rememberMe,
       });
 
-      // Stocker le token dans localStorage ou cookies si rememberMe est activé
       localStorage.setItem("token", response.data.token);
       setMessage("Connexion réussie !");
-      navigate("/dashboard"); // Redirige vers le tableau de bord
-
+      navigate("/restodashboard");
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);
@@ -38,56 +33,80 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <img src="/assets/logo.png" alt="Logo Outam" className="logo" />
-        <h2>Bienvenue dans votre Univers</h2>
-        <p className="subtitle">Connectez-vous</p>
+    <div className="relative h-screen w-screen flex items-center justify-center">
+      {/* Image de fond */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/assets/bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
 
-        {message && <div className="message">{message}</div>}
+      {/* Conteneur du formulaire */}
+      <div className="relative bg-white p-8 rounded-lg shadow-lg w-96 z-10">
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <img src="/assets/logo.png" alt="Logo" className="h-20" />
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Adresse email"
-            />
-          </div>
+        {/* Titre */}
+        <h2 className="text-center text-lg font-semibold">Bienvenue dans votre Univers</h2>
 
-          <div>
-            <label>Mot de passe</label>
-            <input
-              type="password"
-              value={motDePasse}
-              onChange={(e) => setMotDePasse(e.target.value)}
-              required
-              placeholder="Mot de passe"
-            />
-          </div>
+        {/* Formulaire */}
+        <form className="mt-4" onSubmit={handleSubmit}>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            placeholder="Adresse email"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <div className="remember-forgot">
-            <label>
+          <label className="block mt-3 text-sm font-medium text-gray-700">Mot de passe</label>
+          <input
+            type="password"
+            placeholder="Mot de passe"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
+            value={motDePasse}
+            onChange={(e) => setMotDePasse(e.target.value)}
+          />
+
+          <div className="flex items-center justify-between mt-3">
+            <label className="flex items-center text-sm">
               <input
                 type="checkbox"
+                className="mr-1"
                 checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
+                onChange={() => setRememberMe(!rememberMe)}
               />
               Se souvenir de moi
             </label>
-            <Link to="/forgot-password">Mot de passe oublié ?</Link>
+            <a href="/forgot-password" className="text-sm text-yellow-600 hover:underline">
+              Mot de passe oublié
+            </a>
           </div>
 
-          <button type="submit" className="login-btn">SE CONNECTER</button>
+          <button
+            type="submit"
+            className="w-full mt-4 bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
+          >
+            SE CONNECTER
+          </button>
         </form>
-       <p className="register-link"><Link to="/register">Créer un compte</Link>
-      </p>
-        <p className="support">
-          ⚠ <span>Service Client :</span> <a href="tel:+3338432233">33 843 22 33</a>
-        </p>
+
+        {/* Affichage du message */}
+        {message && <p className="text-center text-red-600 mt-2">{message}</p>}
+
+        {/* Service Client */}
+        <div className="mt-4 text-center text-sm text-red-600 flex items-center justify-center">
+          <span className="mr-1">⚠️</span>
+          <a href="tel:338432233" className="underline">
+            Service Client : 33 843 22 33
+          </a>
+        </div>
       </div>
     </div>
   );

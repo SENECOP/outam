@@ -17,6 +17,7 @@ const Publicite = require("./models/Publicite");
 const commercantRoutes = require("./routes/commercantRoutes"); // Importer les routes
 const cookieParser = require('cookie-parser');
 const etablissementRoutes = require("./routes/etablissement");
+const qrCodeRoutes = require("./routes/qrCodeRoutes");
 
 
 
@@ -50,6 +51,7 @@ mongoose
 // Utiliser les routes des commerçants
 app.use("/api/commercant", commercantRoutes);
 app.use("/api/etablissements", etablissementRoutes);
+app.use("/api", qrCodeRoutes);
 // Démarrage du serveur
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`✅ Serveur en écoute sur http://localhost:${PORT}`));

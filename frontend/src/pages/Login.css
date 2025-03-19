@@ -1,17 +1,4 @@
-/* Style global pour la page */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-image: url('/public/assets/bg.png');
-    height: 100vh;
-  }
-  
+
   /* Conteneur du formulaire */
   .login-container {
     background: rgba(255, 255, 255, 0.9);
