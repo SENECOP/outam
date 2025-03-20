@@ -43,7 +43,7 @@ export default function SidebarLayout() {
     <BookOpen size={24} className="text-blue-500" /> {/* Icône de livre en vert */}
   </div>
   Menu du restaurant
-</h1>
+</h1> 
       <div className="max-w-4xl ml-4 p-6 bg-white border border-black rounded-md">
 
       

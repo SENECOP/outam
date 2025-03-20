@@ -8,6 +8,8 @@ import PageScanner from './pages/PageScanner';
 import PageClient from './pages/PageClient';
 import BackOffice from './pages/BackOffice';
 import RestaurantDashboard from './pages/RestaurantDashboard';
+import HomeRestaurant from './pages/HomeRestaurant';
+import GererMenu from './pages/GererMenu';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/admin" element={<BackOffice />} />
         <Route path="/restodashboard" element={<RestaurantDashboard />} />
+        <Route path="/homerestaurant" element={<HomeRestaurant />} />
+        <Route path="/gerermenu" element={<GererMenu />} />
       </Routes>
     </Router>
   );
