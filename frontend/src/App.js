@@ -10,6 +10,7 @@ import BackOffice from './pages/BackOffice';
 import RestaurantDashboard from './pages/RestaurantDashboard';
 import HomeRestaurant from './pages/HomeRestaurant';
 import GererMenu from './pages/GererMenu';
+import QrcodeResto from './pages/qrcodeResto'; // Corrigé : nom du composant en PascalCase
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/restodashboard" element={<RestaurantDashboard />} />
         <Route path="/homerestaurant" element={<HomeRestaurant />} />
         <Route path="/gerermenu" element={<GererMenu />} />
+        <Route path="/qrcoderesto" element={<QrcodeResto />} /> {/* Corrigé : utilisation de QrcodeResto */}
       </Routes>
     </Router>
   );
