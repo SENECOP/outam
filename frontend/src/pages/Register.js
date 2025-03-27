@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './Register.css';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
-  const [nom, setNom] = useState('');
-  const [email, setEmail] = useState('');
-  const [motDePasse, setMotDePasse] = useState('');
-  const [typeCommercant, setTypeCommercant] = useState('');
-  const [message, setMessage] = useState('');
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
+  const [motDePasse, setMotDePasse] = useState("");
+  const [typeCommercant, setTypeCommercant] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,75 +16,102 @@ function Register() {
     const newCommercant = { nom, email, motDePasse, typeCommercant };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/commercant/register', newCommercant);
+      const response = await axios.post(
+        "http://localhost:5000/api/commercant/register",
+        newCommercant
+      );
 
-      // Si l'inscription réussie, on peut rediriger l'utilisateur
       setMessage(response.data.message);
-      navigate('/'); // Rediriger vers la page de login après l'inscription
+      navigate("/");
     } catch (error) {
-      // Si erreur, on affiche le message d'erreur
       if (error.response) {
         setMessage(error.response.data.message);
       } else {
-        setMessage('Erreur lors de l\'inscription');
+        setMessage("Erreur lors de l'inscription");
       }
     }
   };
 
   return (
-    <div className="register-container">
+    <div className="relative h-screen w-screen flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/assets/bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
 
-      <h2>Inscription</h2>
-      {message && <div className="message">{message}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="nom">Nom</label>
+      <div className="relative bg-white p-10 rounded-lg shadow-lg w-[450px] z-10">
+        <div className="flex justify-center mb-4">
+          <img src="/assets/logo.png" alt="Logo" className="h-20" />
+        </div>
+
+        <h2 className="text-center text-lg font-semibold">
+          Inscription
+        </h2>
+
+        {message && <p className="text-center text-red-600 mt-2">{message}</p>}
+
+        <form className="mt-4" onSubmit={handleSubmit}>
+          <label className="block text-sm font-medium text-gray-700">Nom</label>
           <input
             type="text"
-            id="nom"
+            placeholder="Nom complet"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
             value={nom}
             onChange={(e) => setNom(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
+
+          <label className="block mt-3 text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
-            id="email"
+            placeholder="Adresse email"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="motDePasse">Mot de passe</label>
+
+          <label className="block mt-3 text-sm font-medium text-gray-700">
+            Mot de passe
+          </label>
           <input
             type="password"
-            id="motDePasse"
+            placeholder="Mot de passe"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
             value={motDePasse}
             onChange={(e) => setMotDePasse(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="typeCommercant">Type de commerçant</label>
+
+          <label className="block mt-3 text-sm font-medium text-gray-700">
+            Type de commerçant
+          </label>
           <select
-            id="typeCommercant"
+            className="w-full mt-1 px-4 py-2 border rounded-md focus:ring focus:ring-yellow-500 focus:outline-none"
             value={typeCommercant}
             onChange={(e) => setTypeCommercant(e.target.value)}
             required
           >
             <option value="">Choisir un type</option>
-            <option value="hotel">Hotel</option>
+            <option value="hotel">Hôtel</option>
             <option value="restaurant">Restaurant</option>
-            <option value="supermarche">Supermarche</option>
-
-            {/* Ajoute d'autres options si nécessaire */}
+            <option value="supermarche">Supermarché</option>
           </select>
-        </div>
-        <button type="submit">S'inscrire</button>
-      </form>
+
+          <button
+            type="submit"
+            className="w-full mt-4 bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
+          >
+            S'INSCRIRE
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

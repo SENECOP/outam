@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie"; // Pour manipuler les cookies
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const [cookies, setCookie] = useCookies(["accessToken", "refreshToken"]); // On utilise le hook useCookies pour accéder aux cookies
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +22,26 @@ function Login() {
         rememberMe,
       });
 
-      localStorage.setItem("token", response.data.token);
-      setMessage("Connexion réussie !");
-      navigate("/restodashboard");
+      // Si l'authentification réussie, on enregistre les cookies
+      setCookie("accessToken", response.data.token, {
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Assurez-vous que les cookies sont sécurisés en production
+        maxAge: rememberMe ? 30 * 24 * 60 * 60 : 60 * 60, // 30 jours si rememberMe, sinon 1h
+      });
+
+      // Rediriger l'utilisateur vers le tableau de bord en fonction du type de commerçant
+      const typeCommercant = response.data.typeCommercant;
+      if (typeCommercant === "restaurant") {
+        navigate("/restodashboard");
+      } else if (typeCommercant === "hotel") {
+        navigate("/hoteldashboard");
+      } else if (typeCommercant === "supermarche") {
+        navigate("/supermarkedashboard");
+      } else {
+        setMessage("Erreur lors de la redirection.");
+      }
+
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);
@@ -31,7 +50,6 @@ function Login() {
       }
     }
   };
-
   return (
     <div className="relative h-screen w-screen flex items-center justify-center">
       {/* Image de fond */}

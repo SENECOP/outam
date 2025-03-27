@@ -1,98 +1,215 @@
-import { useState } from "react";
-import { Home, List, ShoppingCart, BarChart, User, LogOut, Menu ,BookOpen} from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import { Link } from "react-router-dom";
+import EditMenuItemForm from "../components/EditMenuItemForm";
 
-export default function SidebarLayout() {
+export default function RestaurantDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const { id } = useParams();
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [expandedItems, setExpandedItems] = useState({});
+  const [editForm, setEditForm] = useState(null);
+  const [shouldRefresh, setShouldRefresh] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
-  const [menu, setMenu] = useState([
-    { id: 1, name: "Mafé", price: 2500, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/m.jpeg", expanded: false },
-    { id: 2, name: "Domoda", price: 5000, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/d.jpg", expanded: false },
-    { id: 3, name: "Kaldou diola", price: 1500, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/y.jpeg", expanded: false },
-    { id: 4, name: "Thiebou djeun", price: 3000, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/t.jpeg", expanded: false }
-  ]);
 
-  const [expanded, setExpanded] = useState(null);
-  const [form, setForm] = useState({ name: "", price: "", description: "", image: null });
-
-  const menuItems = [
-    { id: 1, name: "Mafé", price: 2500, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/m.jpeg", expanded: false },
-    { id: 2, name: "Domoda", price: 5000, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/d.jpg", expanded: false },
-    { id: 3, name: "Kaldou diola", price: 1500, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/y.jpeg", expanded: false },
-    { id: 4, name: "Thiebou djeun", price: 3000, description: "Un délicieux mafé à la viande, accompagné de légumes frais et une pâte d'arachide ...", image: "assets/t.jpeg", expanded: false }
-  ];
-
-  const handleExpand = (id) => {
-    setExpanded(expanded === id ? null : id);
+  const toggleDescription = (itemId) => {
+    setExpandedItems((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
   };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const toggleEditForm = (itemId) => {
+    setEditForm((prev) => (prev === itemId ? null : itemId));
   };
+
+  // Fetch les plats du menu en fonction du jour
+  const fetchMenuItems = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:5000/api/restaurant/${id}/daily-menu`);
+      const data = await response.json();
+
+      if (response.ok && data.dailyMenus) {
+        // Filtre les menus pour le jour actuel
+        const today = new Date().toLocaleDateString("fr-FR", { weekday: "long" }).toLowerCase();
+        const todayMenu = data.dailyMenus.filter(menu => menu.day.toLowerCase() === today && menu.isActive);
+        setMenuItems(todayMenu.length > 0 ? todayMenu[0].dishes : []);
+      } else {
+        setError(data.message || "Erreur lors du chargement du menu");
+      }
+    } catch (error) {
+      setError("Erreur de connexion au serveur");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, [id, shouldRefresh]);
+
+  const handleEditSuccess = () => {
+    setShouldRefresh((prev) => !prev);
+    setEditForm(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen">
-    <Sidebar isSidebarOpen={isSidebarOpen} />
-    <div className="flex-1 flex flex-col">
-      <Header toggleSidebar={toggleSidebar} />
-      <main className="p-4 bg-gray-100 min-h-screen">
-      <h1 className="max-w-4xl ml-4 p-6 text-2xl font-bold mb-4 flex items-center">
-  <div className="bg-blue-100 p-2 rounded-full mr-4 shadow-md"> {/* Fond vert, espace de 16px, ombre */}
-    <BookOpen size={24} className="text-blue-500" /> {/* Icône de livre en vert */}
-  </div>
-  Menu du restaurant
-</h1>
-<div className="max-w-1xl mx-auto px- p-1 mr-[680px] ml-8">
-      <nav className="flex justify-between border-b pb-0 mb-0">
-        <div className="flex space-x-24">
-        <button className="font-bold bg-white text-black px-3 py-2 rounded">Menu actuel</button>
-          <button>Gérer le menu</button>
-          <button>Créer un menu</button>
-          <Link to="/qrcoderesto">
-          <button>QR Code</button>
-        </Link>
-          <button>Historique</button>
-        </div>
-      </nav>
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar isSidebarOpen={isSidebarOpen} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header toggleSidebar={toggleSidebar} />
+        <main className="flex-1 overflow-y-auto p-4 ml-1">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center mb-6">
+              <div className="bg-blue-100 p-3 rounded-full mr-4 shadow-md">
+                <BookOpen size={24} className="text-blue-500" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800">Menu du restaurant</h1>
+            </div>
 
-      <div className="bg-white p-0 ">
-        {menuItems.map((item) => (
-          <div key={item.id} className="border-b py-2 flex items-center">
-            <img src={item.image} alt={item.name} className="w-16 h-16 rounded mr-4" />
-            <div className="flex-1">
-              <div className="flex justify-between items-center">
-                <div>
-                  <strong>{item.name} ({item.price})</strong>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </div>
-                <button
-                  className="bg-gray-200 px-2 py-1 rounded mr-8"
-                  onClick={() => handleExpand(item.id)}
+            <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
+              <div className="flex space-x-6">
+                <button className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
+                  Menu actuel
+                </button>
+                <Link
+  to={`/gerermenu/${id}`}
+  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+>
+  Gerer menu
+</Link>
+
+                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  Créer un menu
+                </button>
+                <Link
+                  to="/qrcoderesto"
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
                 >
-                  {expanded === item.id ? "fermer" : "développer"}
+                  QR Code
+                </Link>
+                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  Historique
                 </button>
               </div>
-              {expanded === item.id && (
-                <div className="mt-2">
-                  <input type="text" name="name" placeholder="Nom du plat" className="w-full border p-2 my-1" onChange={handleChange} />
-                  <input type="text" name="price" placeholder="Prix du plat" className="w-full border p-2 my-1" onChange={handleChange} />
-                  <textarea name="description" placeholder="Description du plat" className="w-full border p-2 my-1" onChange={handleChange} />
-                  <input type="file" className="w-full border p-2 my-1" />
-                  <button className="bg-green-600 text-white px-4 py-2 rounded">Enregistrer</button>
+            </nav>
+
+            <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+              {menuItems.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  Aucun plat disponible pour aujourd'hui
                 </div>
+              ) : (
+                menuItems.map((item) => {
+                  const itemId = item._id.$oid || item._id;
+                  return (
+                    <div key={itemId} className="border-b last:border-b-0">
+                      <div className="p-4 flex items-start">
+                        
+                      <img
+                          src={item.image || "https://via.placeholder.com/64"}  // Fallback pour l'image
+                          alt={item.title || "Image non disponible"}  // Alt pour l'image
+                          className="w-16 h-16 rounded-md object-cover mr-4"
+                        />
+
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h1 className="font-semibold text-gray-800">
+                                {item.title || "Titre non disponible"} 
+                                <span className="text-blue-600">
+                                 ({item.price ? `${item.price} FCFA` : "Prix non disponible"})
+                                </span>
+                              </h1>
+                              <p className="text-green-500">{item.category || "Catégorie non définie"}</p>
+
+                              <p className="text-sm text-gray-600 mt-1">
+                                {expandedItems[itemId] ? (
+                                  <>
+                                    {item.description || "Aucune description disponible"}
+                                    <button
+                                      className="text-blue-500 ml-2 text-sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleDescription(itemId);
+                                      }}
+                                    >
+                                      Voir moins
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    {item.description && item.description.split(" ").length > 20
+                                      ? `${item.description.split(" ").slice(0, 20).join(" ")}...`
+                                      : item.description || "Aucune description disponible"}
+                                    {item.description && item.description.split(" ").length > 20 && (
+                                      <button
+                                        className="text-blue-500 ml-2 text-sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleDescription(itemId);
+                                        }}
+                                      >
+                                        Voir plus
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </p>
+                            </div>
+                            <button
+                              className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md text-sm text-gray-700 ml-4"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleEditForm(itemId);
+                              }}
+                            >
+                              {editForm === itemId ? "Fermer" : "Modifier"}
+                            </button>
+                          </div>
+
+                          {editForm === itemId && (
+                            <div className="mt-4">
+                              <EditMenuItemForm
+                                item={{ ...item, restaurantId: id }}
+                                onClose={handleEditSuccess}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
-        ))}
+        </main>
       </div>
     </div>
-      </main>
-    </div>
-  </div>
   );
 }

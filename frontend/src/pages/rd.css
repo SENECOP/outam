@@ -1,0 +1,21 @@
+.menu-item {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .description-container,
+  .edit-form-container {
+    contain: content;
+  }
+  
+  .item-content {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .item-image {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+  }
