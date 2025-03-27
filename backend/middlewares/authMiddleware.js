@@ -1,6 +1,9 @@
 const express = require("express");
 
 const jwt = require("jsonwebtoken");
+const Commercant = require('../models/Commercant');
+const Restaurant = require('../models/Restaurant');
+
 const cookieParser = require("cookie-parser");
 const app = express();
 

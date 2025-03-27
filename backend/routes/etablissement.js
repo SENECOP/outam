@@ -4,6 +4,7 @@ const Etablissement = require("../models/Etablissement");
 const Hotel = require("../models/Hotel");
 const Restaurant = require("../models/Restaurant");
 const Supermarche = require("../models/Supermarche");
+const Commercant = require("../models/Commercant");
 
 const router = express.Router();
 
@@ -90,6 +91,117 @@ router.get("/showetab", async (req, res) => {
         return res.status(500).json({ message: "Erreur serveur", error: error.message });
     }
 });
+router.get("/:commercantId", async (req, res) => {
+    const commercantId = req.params.commercantId;
 
+    try {
+        // Vérifier si le commerçant existe
+        const commercant = await Commercant.findById(commercantId);
+        if (!commercant) {
+            return res.status(404).json({ message: "Commerçant non trouvé" });
+        }
 
+        // Récupérer tous les établissements associés au commerçant
+        const etablissements = await Etablissement.find({ idCommercant: commercantId })
+            .populate("idCommercant", "nom email typeCommercant") // Facultatif, si vous voulez aussi récupérer les détails du commerçant
+            .exec();
+
+        if (etablissements.length === 0) {
+            return res.status(404).json({ message: "Aucun établissement trouvé pour ce commerçant" });
+        }
+
+        // Retourner les établissements associés au commerçant
+        return res.status(200).json({ etablissements });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Erreur serveur" });
+    }
+});
+router.get("/restaurant/:commercantId", async (req, res) => {
+    const commercantId = req.params.commercantId;
+
+    try {
+        // Vérifier si le commerçant existe
+        const commercant = await Commercant.findById(commercantId);
+        if (!commercant) {
+            return res.status(404).json({ message: "Commerçant non trouvé" });
+        }
+
+        // Récupérer le restaurant associé au commerçant
+        const restaurant = await Etablissement.findOne({ idCommercant: commercantId, type: "restaurant" })
+            .populate("idCommercant", "nom email typeCommercant") // Facultatif: récupérer les infos du commerçant
+            .exec();
+
+        if (!restaurant) {
+            return res.status(404).json({ message: "Aucun restaurant trouvé pour ce commerçant" });
+        }
+
+        // Retourner les détails du restaurant
+        return res.status(200).json({ restaurant });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Erreur serveur" });
+    }
+});
+
+router.get("/restaurant-details/:commercantId", async (req, res) => {
+    const commercantId = req.params.commercantId;
+
+    try {
+        const commercant = await Commercant.findById(commercantId);
+        if (!commercant) {
+            return res.status(404).json({ message: "Commerçant non trouvé" });
+        }
+
+        const restaurant = await Etablissement.findOne({ idCommercant: commercantId, type: 'restaurant' })
+            .populate('idCommercant', 'nom email typeCommercant')
+            .exec();
+
+        if (!restaurant) {
+            return res.status(404).json({ message: "Aucun restaurant trouvé pour ce commerçant" });
+        }
+
+        res.json({ restaurant });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Erreur serveur" });
+    }
+});
+const verifyToken = (req, res, next) => {
+    const token = req.headers["authorization"]?.split(" ")[1];  // Récupère le token depuis le header Authorization
+  
+    if (!token) {
+      return res.status(403).json({ message: "Token manquant, veuillez vous connecter" });
+    }
+  
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: "Token invalide" });
+      }
+      req.userId = decoded.commercantId;  // Sauvegarde l'ID du commerçant dans la requête
+      next();
+    });
+  };
+  
+  // Route pour obtenir les détails d'un restaurant
+  router.get("/restaurant-details/:etablissementId", verifyToken, async (req, res) => {
+    const { etablissementId } = req.params;
+  
+    try {
+      // Vérifier si l'établissement appartient au commerçant connecté
+      const etablissement = await Etablissement.findOne({ _id: etablissementId, idCommercant: req.userId });
+  
+      if (!etablissement) {
+        return res.status(404).json({ message: "Restaurant non trouvé ou vous n'avez pas accès à cet établissement" });
+      }
+  
+      // Renvoyer les détails de l'établissement (restaurant)
+      res.json({ restaurant: etablissement });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Erreur lors de la récupération des détails de l'établissement" });
+    }
+  });
+  
+  
 module.exports = router;
