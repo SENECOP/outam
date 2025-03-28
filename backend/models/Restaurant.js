@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const QRCode = require('qrcode');
+
 
 // 🔹 Modèle de Plat (Dish) (SUPPRESSION de `day`)
 const dishSchema = new mongoose.Schema({
@@ -30,8 +32,21 @@ const restaurantSchema = new mongoose.Schema({
         photoDeProfil: { type: String, default: 'default-avatar.jpg' },
         resetPasswordToken: { type: String },
         resetPasswordExpires: { type: Date }
-    }
+    },
+    qrCode: { type: String }
 }, { timestamps: true });
+restaurantSchema.pre('save', async function (next) {
+    if (this.isNew) { // Générer un QR Code uniquement à la création
+        try {
+            const qrData = `https://mon-site.com/restaurant/${this._id}`;
+            const qrCodeUrl = await QRCode.toDataURL(qrData);
+            this.qrCode = qrCodeUrl;
+        } catch (error) {
+            console.error("❌ Erreur lors de la génération du QR Code :", error);
+        }
+    }
+    next();
+});
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
