@@ -4,6 +4,9 @@ import { BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import EditMenuItemForm from "../components/EditMenuItemForm";
+import { useAppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
+
 
 export default function RestaurantDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -14,7 +17,9 @@ export default function RestaurantDashboard() {
   const [expandedItems, setExpandedItems] = useState({});
   const [editForm, setEditForm] = useState(null);
   const [shouldRefresh, setShouldRefresh] = useState(false);
-
+  const { currentRestaurant } = useAppContext();
+  const navigate = useNavigate();
+  console.log('Current Restaurant:', currentRestaurant); // Debug important
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -76,7 +81,13 @@ export default function RestaurantDashboard() {
       </div>
     );
   }
-
+  const handleQRCodeClick = (e) => {
+    if (!currentRestaurant) {
+      e.preventDefault();
+      alert("Aucun restaurant sélectionné");
+      navigate('/restaurants'); // Redirige vers la page de sélection
+    }
+  };
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} />
@@ -107,11 +118,12 @@ export default function RestaurantDashboard() {
                   Créer un menu
                 </button>
                 <Link
-                  to="/qrcoderesto"
-                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
-                >
-                  QR Code
-                </Link>
+      to={currentRestaurant ? `/restaurants/${currentRestaurant._id}/qrcode` : "#"}
+      onClick={handleQRCodeClick}
+      className="text-gray-600 hover:text-gray-800 px-3 py-2"
+    >
+      QR Code
+    </Link>
                 <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   Historique
                 </button>

@@ -259,9 +259,14 @@ router.put('/:restaurantId/menu/:itemId',
         if (!restaurant) {
           return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
         }
-  
-        // 2. Trouver l'item dans le menu
-        const menuItem = restaurant.menu.id(itemId);
+
+        // 2. Trouver le menu qui contient l'élément avec l'itemId
+        let menuItem = null;
+        for (let menu of restaurant.menus) {
+          menuItem = menu.dishes.id(itemId);
+          if (menuItem) break;  // Si l'item est trouvé, on sort de la boucle
+        }
+        
         if (!menuItem) {
           return res.status(404).json({ success: false, message: "Item de menu non trouvé" });
         }
@@ -300,7 +305,8 @@ router.put('/:restaurantId/menu/:itemId',
         });
       }
     }
-  );
+);
+
 
 router.post('/menu/:restaurantId', async (req, res) => {
     const { restaurantId } = req.params;
@@ -357,45 +363,88 @@ router.get('/:id/daily-menu', async (req, res) => {
 });
 router.put("/:restaurantId/menu/:menuId", async (req, res) => {
     try {
-        const { restaurantId, menuId } = req.params;  // Accéder aux paramètres de l'URL
-        const { isActive } = req.body;  // Assurez-vous que vous recevez un champ isActive dans le corps de la requête
+        const { restaurantId, menuId } = req.params;
+        const { isActive } = req.body;
 
-        // Vérification si restaurantId et menuId sont présents
-        if (!restaurantId || !menuId) {
-            return res.status(400).json({ message: "Restaurant ID ou Menu ID manquant" });
+        console.log("🔹 Requête reçue pour mettre à jour un menu");
+        console.log("➡️ Restaurant ID :", restaurantId);
+        console.log("➡️ Menu ID :", menuId);
+        console.log("➡️ isActive :", isActive);
+
+        // Vérifications de base
+        if (!mongoose.Types.ObjectId.isValid(restaurantId) || !mongoose.Types.ObjectId.isValid(menuId)) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "IDs invalides" 
+            });
         }
 
-        // Vérification si isActive est bien fourni dans le body
         if (isActive === undefined) {
-            return res.status(400).json({ message: "Le champ isActive est requis" });
+            return res.status(400).json({ 
+                success: false, 
+                message: "Le champ isActive est requis" 
+            });
         }
 
-        // Recherche du restaurant par son ID
+        // Conversion du menuId en ObjectId
+        const menuObjectId = new mongoose.Types.ObjectId(menuId);
+
+        // Recherche du restaurant
         const restaurant = await Restaurant.findById(restaurantId);
-        
         if (!restaurant) {
-            return res.status(404).json({ message: "Restaurant non trouvé" });
+            return res.status(404).json({ 
+                success: false, 
+                message: "Restaurant non trouvé" 
+            });
         }
 
-        // Recherche du menu dans le restaurant par son ID avec la méthode id()
-        const menu = restaurant.menus.id(menuId);
-        
+        console.log("✔️ Restaurant trouvé :", restaurant.name);
+
+        // Vérification de la structure des menus
+        if (!restaurant.menus || restaurant.menus.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Aucun menu trouvé pour ce restaurant" 
+            });
+        }
+
+        // 🔹 Recherche du menu avec conversion correcte
+        const menu = restaurant.menus.find(m => m._id.equals(menuObjectId));
+
         if (!menu) {
-            return res.status(404).json({ message: "Menu non trouvé" });
+            console.log("❌ Menu non trouvé, liste des menus existants :", restaurant.menus.map(m => m._id.toString()));
+            return res.status(404).json({ 
+                success: false, 
+                message: "Menu non trouvé",
+                debug: {
+                    menuIdReceived: menuId,
+                    existingMenuIds: restaurant.menus.map(m => m._id.toString()) 
+                }
+            });
         }
 
-        // Mise à jour de l'état du menu
+        console.log("✔️ Menu trouvé :", menu.name);
+
+        // Mise à jour du statut 'isActive'
         menu.isActive = isActive;
 
-        // Sauvegarder les modifications
+        // Sauvegarde du restaurant après mise à jour du menu
         await restaurant.save();
 
-        // Répondre avec succès
-        res.status(200).json({ message: "Menu mis à jour avec succès", menu });
+        console.log("✅ Menu mis à jour avec succès");
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Menu mis à jour avec succès", 
+            menu 
+        });
     } catch (error) {
-        console.error("Erreur serveur:", error);
-        // En cas d'erreur, afficher un message détaillé et retourner une réponse appropriée
-        res.status(500).json({ message: "Erreur serveur", error: error.message });
+        console.error("❌ Erreur serveur:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Erreur serveur", 
+            error: error.message 
+        });
     }
 });
  

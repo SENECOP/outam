@@ -3,14 +3,16 @@ import { useParams, Link } from "react-router-dom";
 import { BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
+import { useNavigate } from 'react-router-dom';
 
-export default function RestaurantDashboard() {
+export default function GererMenu({ user }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shouldRefresh, setShouldRefresh] = useState(false);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -62,7 +64,17 @@ export default function RestaurantDashboard() {
   if (loading) return <p className="text-center text-gray-500">Chargement...</p>;
   if (error) return <p className="text-center text-red-500">Erreur : {error}</p>;
   if (!restaurant) return <p className="text-center text-gray-500">Aucune donnée disponible</p>;
+  
+  const handleRedirect = () => {
+    // Vérifiez d'abord si `user` et `user.restaurantId` sont définis
+    if (!user || !user.restaurantId) {
+      console.error("Restaurant ID manquant ou `user` non défini");
+      return;  // Ne pas effectuer la redirection si les données sont manquantes
+    }
 
+    // Si tout est valide, effectuer la redirection
+    navigate(`/restaurant/${user.restaurantId}`);
+  };
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} />
@@ -80,8 +92,12 @@ export default function RestaurantDashboard() {
             {/* Navigation */}
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
               <div className="flex space-x-6">
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Menu actuel</button>
-                <Link to={`/gerermenu/${id}`} className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
+              <button
+      onClick={handleRedirect}
+      className="text-gray-600 hover:text-gray-800 px-3 py-2">
+      Menu actuel
+    </button>             
+    <Link to={`/gerermenu/${id}`} className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
                   Gérer menu
                 </Link>
                 <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Créer un menu</button>
@@ -93,8 +109,8 @@ export default function RestaurantDashboard() {
             </nav>
 
             {/* Liste des menus */}
-            <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md" style={{ marginRight: "400px" }}>
-              {restaurant.menus?.map((menu) => (
+            <div className="bg-white p-6  rounded-lg shadow-md">
+            {restaurant.menus?.map((menu) => (
                 <div key={menu._id} className="border-b py-4 flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-semibold">Menu {menu.day}</h2>

@@ -42,7 +42,7 @@ function App() {
           <Route path="/restodashboard" element={<RestaurantDashboard />} />
           <Route path="/homer" element={<HomeRestaurant />} />
           <Route path="/gerermenu/:id" element={<GererMenu />} />
-          <Route path="/qrcoderesto" element={<QrcodeResto />} /> {/* Correction déjà faite ici */}
+          <Route path="/restaurants/:restaurantId/qrcode" element={<QrcodeResto />} /> {/* Correction déjà faite ici */}
           <Route path="/restaurants" element={<RestaurantPage />} />
           <Route path="/loginr" element={<LoginR />} />
           <Route path="/loginrestaurant" element={<LoginRestaurant />} />
