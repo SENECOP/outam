@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
 
@@ -17,9 +17,10 @@ export const AppProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('restoUser');
         const storedRestaurant = localStorage.getItem('currentRestaurant');
-        
+
         if (storedUser) setUser(JSON.parse(storedUser));
-        if (storedRestaurant) setCurrentRestaurant(JSON.parse(storedRestaurant));
+        if (storedRestaurant)
+          setCurrentRestaurant(JSON.parse(storedRestaurant));
       } catch (error) {
         console.error("Erreur de chargement de l'authentification:", error);
       } finally {
@@ -35,7 +36,10 @@ export const AppProvider = ({ children }) => {
     // Si l'utilisateur a un restaurant associé
     if (userData?.restaurant) {
       setCurrentRestaurant(userData.restaurant);
-      localStorage.setItem('currentRestaurant', JSON.stringify(userData.restaurant));
+      localStorage.setItem(
+        'currentRestaurant',
+        JSON.stringify(userData.restaurant)
+      );
     }
     localStorage.setItem('restoUser', JSON.stringify(userData));
   };
@@ -59,7 +63,7 @@ export const AppProvider = ({ children }) => {
     isLoading,
     loginUser,
     logoutUser,
-    setRestaurant
+    setRestaurant,
   };
 
   return (

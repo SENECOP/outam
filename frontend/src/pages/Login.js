@@ -1,52 +1,54 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie"; // Pour manipuler les cookies
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useCookies } from 'react-cookie'; // Pour manipuler les cookies
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [motDePasse, setMotDePasse] = useState("");
+  const [email, setEmail] = useState('');
+  const [motDePasse, setMotDePasse] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies(["accessToken", "refreshToken"]); // On utilise le hook useCookies pour accéder aux cookies
+  const [cookies, setCookie] = useCookies(['accessToken', 'refreshToken']); // On utilise le hook useCookies pour accéder aux cookies
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
+    setMessage('');
 
     try {
-      const response = await axios.post("http://localhost:5000/api/commercant/login", {
-        email,
-        motDePasse,
-        rememberMe,
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/commercant/login',
+        {
+          email,
+          motDePasse,
+          rememberMe,
+        }
+      );
 
       // Si l'authentification réussie, on enregistre les cookies
-      setCookie("accessToken", response.data.token, {
-        path: "/",
+      setCookie('accessToken', response.data.token, {
+        path: '/',
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Assurez-vous que les cookies sont sécurisés en production
+        secure: process.env.NODE_ENV === 'production', // Assurez-vous que les cookies sont sécurisés en production
         maxAge: rememberMe ? 30 * 24 * 60 * 60 : 60 * 60, // 30 jours si rememberMe, sinon 1h
       });
 
       // Rediriger l'utilisateur vers le tableau de bord en fonction du type de commerçant
       const typeCommercant = response.data.typeCommercant;
-      if (typeCommercant === "restaurant") {
-        navigate("/restodashboard");
-      } else if (typeCommercant === "hotel") {
-        navigate("/hoteldashboard");
-      } else if (typeCommercant === "supermarche") {
-        navigate("/supermarkedashboard");
+      if (typeCommercant === 'restaurant') {
+        navigate('/restodashboard');
+      } else if (typeCommercant === 'hotel') {
+        navigate('/hoteldashboard');
+      } else if (typeCommercant === 'supermarche') {
+        navigate('/supermarkedashboard');
       } else {
-        setMessage("Erreur lors de la redirection.");
+        setMessage('Erreur lors de la redirection.');
       }
-
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);
       } else {
-        setMessage("Erreur de connexion.");
+        setMessage('Erreur de connexion.');
       }
     }
   };
@@ -57,8 +59,8 @@ function Login() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/assets/bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       ></div>
 
@@ -70,11 +72,15 @@ function Login() {
         </div>
 
         {/* Titre */}
-        <h2 className="text-center text-lg font-semibold">Bienvenue dans votre Univers</h2>
+        <h2 className="text-center text-lg font-semibold">
+          Bienvenue dans votre Univers
+        </h2>
 
         {/* Formulaire */}
         <form className="mt-4" onSubmit={handleSubmit}>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
             placeholder="Adresse email"
@@ -83,7 +89,9 @@ function Login() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <label className="block mt-3 text-sm font-medium text-gray-700">Mot de passe</label>
+          <label className="block mt-3 text-sm font-medium text-gray-700">
+            Mot de passe
+          </label>
           <input
             type="password"
             placeholder="Mot de passe"
@@ -102,7 +110,10 @@ function Login() {
               />
               Se souvenir de moi
             </label>
-            <a href="/forgot-password" className="text-sm text-yellow-600 hover:underline">
+            <a
+              href="/forgot-password"
+              className="text-sm text-yellow-600 hover:underline"
+            >
               Mot de passe oublié
             </a>
           </div>

@@ -1,115 +1,112 @@
+/* Conteneur du formulaire */
+.login-container {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px; /* Réduction du padding */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  width: 400px;
+  max-height: 450px; /* Hauteur réduite */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Aligne les éléments verticalement */
+  align-items: center; /* Centre les éléments horizontalement */
+}
 
-  /* Conteneur du formulaire */
-  .login-container {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px; /* Réduction du padding */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    width: 400px;
-    max-height: 450px; /* Hauteur réduite */
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Aligne les éléments verticalement */
-    align-items: center; /* Centre les éléments horizontalement */
-  }
-  
-  /* Logo */
- /* Logo */
+/* Logo */
+/* Logo */
 .login-container .logo {
-    width: 150px;
-    margin-bottom: -25px;
-  }
-  
-  
-  /* Titre */
-  .login-container h2 {
-    margin-top: -20px;
-    color: #333;
-  }
-  
-  /* Champs du formulaire */
-  .login-container form div {
-    width: 100%; /* S'assure que les champs occupent toute la largeur disponible */
-    text-align: left;
-  }
-  
-  /* Champ label */
-  .login-container label {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  /* Champs de saisie */
-  .login-container input,
-  .login-container select {
-    width: 100%; /* Assure que les champs occupent toute la largeur */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  /* Message d'erreur ou de succès */
-  .message {
-    color: red;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  .remember-forgot {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 20px; /* Augmenter l'espace entre les options et le bouton */
-    width: 100%;
-    margin-top: 5px;
-  }
-  
-  /* Pour que le checkbox et le texte "Se souvenir de moi" soient sur la même ligne */
-  .remember-forgot label {
-    display: inline-flex; /* Assure que le checkbox et le texte sont sur la même ligne */
-    align-items: center; /* Aligne le checkbox et le texte verticalement */
-    white-space: nowrap; /* Empêche le texte de se couper ou de passer à la ligne */
-  }
-  
-  .remember-forgot a {
-    text-decoration: none;
-    color: #2f2e2c;
-  }
-  /* Bouton */
-  .login-container button {
-    background-color: #d4af37; /* Or couleur dorée */
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    border-radius: 5px;
-  }
-  
-  .login-container button:hover {
-    background-color: #b89b2e;
-  }
-  
-  /* Service client */
-  .support {
-    margin-top: 20px; /* Plus d'espace au-dessus du texte de support */
-    font-size: 14px;
-    width: 100%;
-    margin-left: -65px;
-    text-align: center; /* Centrer le texte */
-  }
-  
-  .support span {
-    font-weight: bold;
-    color: red;
-  }
-  
-  .support a {
-    text-decoration: none;
-    color: blue;
-  }
-  
+  width: 150px;
+  margin-bottom: -25px;
+}
+
+/* Titre */
+.login-container h2 {
+  margin-top: -20px;
+  color: #333;
+}
+
+/* Champs du formulaire */
+.login-container form div {
+  width: 100%; /* S'assure que les champs occupent toute la largeur disponible */
+  text-align: left;
+}
+
+/* Champ label */
+.login-container label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Champs de saisie */
+.login-container input,
+.login-container select {
+  width: 100%; /* Assure que les champs occupent toute la largeur */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Message d'erreur ou de succès */
+.message {
+  color: red;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.remember-forgot {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 20px; /* Augmenter l'espace entre les options et le bouton */
+  width: 100%;
+  margin-top: 5px;
+}
+
+/* Pour que le checkbox et le texte "Se souvenir de moi" soient sur la même ligne */
+.remember-forgot label {
+  display: inline-flex; /* Assure que le checkbox et le texte sont sur la même ligne */
+  align-items: center; /* Aligne le checkbox et le texte verticalement */
+  white-space: nowrap; /* Empêche le texte de se couper ou de passer à la ligne */
+}
+
+.remember-forgot a {
+  text-decoration: none;
+  color: #2f2e2c;
+}
+/* Bouton */
+.login-container button {
+  background-color: #d4af37; /* Or couleur dorée */
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+}
+
+.login-container button:hover {
+  background-color: #b89b2e;
+}
+
+/* Service client */
+.support {
+  margin-top: 20px; /* Plus d'espace au-dessus du texte de support */
+  font-size: 14px;
+  width: 100%;
+  margin-left: -65px;
+  text-align: center; /* Centrer le texte */
+}
+
+.support span {
+  font-weight: bold;
+  color: red;
+}
+
+.support a {
+  text-decoration: none;
+  color: blue;
+}

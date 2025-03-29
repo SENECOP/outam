@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -13,19 +13,24 @@ const ForgotPassword = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/commercant/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        'http://localhost:5000/api/commercant/forgot-password',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || "Une erreur est survenue");
+        throw new Error(data.message || 'Une erreur est survenue');
       }
 
-      setMessage("Email envoyé avec succès ! Vérifiez votre boîte de réception.");
+      setMessage(
+        'Email envoyé avec succès ! Vérifiez votre boîte de réception.'
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,8 +45,8 @@ const ForgotPassword = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/assets/bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       ></div>
 
@@ -52,8 +57,13 @@ const ForgotPassword = () => {
           <img src="/assets/logo.png" alt="Logo" className="h-20" />
         </div>
 
-        <h2 className="text-center text-xl font-semibold text-gray-800">Mot de passe oublié ?</h2>
-        <p className="text-center text-sm text-gray-600 mb-4">Pas de panique, nous allons vous aider à renouveler votre mot de passe.</p>
+        <h2 className="text-center text-xl font-semibold text-gray-800">
+          Mot de passe oublié ?
+        </h2>
+        <p className="text-center text-sm text-gray-600 mb-4">
+          Pas de panique, nous allons vous aider à renouveler votre mot de
+          passe.
+        </p>
 
         <form onSubmit={handleSubmit}>
           <input
@@ -64,18 +74,20 @@ const ForgotPassword = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          
+
           <button
             type="submit"
             className="w-full mt-4 bg-yellow-500 text-white py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
             disabled={loading}
           >
-            {loading ? "Envoi..." : "RÉINITIALISER MOT DE PASSE"}
+            {loading ? 'Envoi...' : 'RÉINITIALISER MOT DE PASSE'}
           </button>
         </form>
 
         {/* Affichage du message */}
-        {message && <p className="text-center text-green-600 mt-4">{message}</p>}
+        {message && (
+          <p className="text-center text-green-600 mt-4">{message}</p>
+        )}
         {error && <p className="text-center text-red-600 mt-4">{error}</p>}
 
         {/* Service Client */}
