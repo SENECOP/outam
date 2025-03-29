@@ -30,7 +30,9 @@ const LoginR = () => {
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
       <form onSubmit={handleLogin}>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
             value={email}
@@ -40,7 +42,9 @@ const LoginR = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Mot de passe
+          </label>
           <input
             type="password"
             value={motDePasse}

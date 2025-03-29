@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu } from 'lucide-react';
 
 export default function Header({ toggleSidebar, nom }) {
   return (
@@ -9,7 +9,7 @@ export default function Header({ toggleSidebar, nom }) {
       </button>
 
       {/* Affichage du nom du restaurant */}
-      <h1 className="text-xl font-bold ml-4">{nom || "Restaurant"}</h1>
+      <h1 className="text-xl font-bold ml-4">{nom || 'Restaurant'}</h1>
 
       {/* Logo à droite */}
       <div className="ml-auto flex items-center space-x-4">

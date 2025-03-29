@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Registerresto = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [motDePasse, setMotDePasse] = useState("");
-  const [nomRestaurant, setNomRestaurant] = useState("");
+  const [email, setEmail] = useState('');
+  const [motDePasse, setMotDePasse] = useState('');
+  const [nomRestaurant, setNomRestaurant] = useState('');
   const [imageUrl, setImageUrl] = useState(null); // Image de profil
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleImageChange = (e) => {
     setImageUrl(e.target.files[0]);
@@ -18,28 +18,32 @@ const Registerresto = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     const formData = new FormData();
-    formData.append("email", email);
-    formData.append("motDePasse", motDePasse);
-    formData.append("nomRestaurant", nomRestaurant);
+    formData.append('email', email);
+    formData.append('motDePasse', motDePasse);
+    formData.append('nomRestaurant', nomRestaurant);
     if (imageUrl) {
-      formData.append("imageUrl", imageUrl); // Ajouter l'image si elle est sélectionnée
+      formData.append('imageUrl', imageUrl); // Ajouter l'image si elle est sélectionnée
     }
 
     try {
       // Envoi des données à l'API pour l'enregistrement du commerçant
-      const response = await axios.post("http://localhost:5000/api/commercant/registeresto", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        'http://localhost:5000/api/commercant/registeresto',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
 
       // Si l'enregistrement est réussi
-      setSuccess("Inscription réussie ! Vous pouvez vous connecter.");
-      setTimeout(() => navigate("/loginr"), 3000); // Rediriger après 3 secondes
+      setSuccess('Inscription réussie ! Vous pouvez vous connecter.');
+      setTimeout(() => navigate('/loginr'), 3000); // Rediriger après 3 secondes
     } catch (err) {
       setError("Erreur lors de l'inscription. Veuillez réessayer.");
     }
@@ -47,15 +51,21 @@ const Registerresto = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-semibold text-center mb-6">Inscription Commerçant - Restaurant</h1>
+      <h1 className="text-3xl font-semibold text-center mb-6">
+        Inscription Commerçant - Restaurant
+      </h1>
 
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-      {success && <div className="text-green-500 text-center mb-4">{success}</div>}
+      {success && (
+        <div className="text-green-500 text-center mb-4">{success}</div>
+      )}
 
       <form onSubmit={handleSubmit}>
         {/* Email */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Email
+          </label>
           <input
             type="email"
             value={email}
@@ -67,7 +77,9 @@ const Registerresto = () => {
 
         {/* Mot de passe */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Mot de passe
+          </label>
           <input
             type="password"
             value={motDePasse}
@@ -79,7 +91,9 @@ const Registerresto = () => {
 
         {/* Nom du restaurant */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Nom du Restaurant</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Nom du Restaurant
+          </label>
           <input
             type="text"
             value={nomRestaurant}
@@ -91,7 +105,9 @@ const Registerresto = () => {
 
         {/* Image de profil */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Image de Profil (facultatif)</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Image de Profil (facultatif)
+          </label>
           <input
             type="file"
             onChange={handleImageChange}

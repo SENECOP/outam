@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import { useState } from 'react';
+import { QrReader } from 'react-qr-reader';
 
 const PageScanner = () => {
-  const [scanResult, setScanResult] = useState("");
+  const [scanResult, setScanResult] = useState('');
 
   const handleScan = (data) => {
     if (data) {
@@ -14,7 +14,7 @@ const PageScanner = () => {
   };
 
   const handleError = (err) => {
-    console.error("Erreur du scanner : ", err);
+    console.error('Erreur du scanner : ', err);
   };
 
   return (
@@ -22,12 +22,12 @@ const PageScanner = () => {
       <h1>Scanner un QR Code</h1>
       <div className="scanner-box">
         <QrReader
-          constraints={{ facingMode: "environment" }}
+          constraints={{ facingMode: 'environment' }}
           onResult={(result, error) => {
             if (result) handleScan(result.text);
             if (error) handleError(error);
           }}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         />
       </div>
       {scanResult && (

@@ -1,6 +1,6 @@
-import { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 export default function SidebarLayout() {
   // État pour contrôler l'ouverture/fermeture de la sidebar

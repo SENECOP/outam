@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
-  const [nom, setNom] = useState("");
-  const [email, setEmail] = useState("");
-  const [motDePasse, setMotDePasse] = useState("");
-  const [typeCommercant, setTypeCommercant] = useState("");
-  const [message, setMessage] = useState("");
+  const [nom, setNom] = useState('');
+  const [email, setEmail] = useState('');
+  const [motDePasse, setMotDePasse] = useState('');
+  const [typeCommercant, setTypeCommercant] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,12 +17,12 @@ function Register() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/commercant/register",
+        'http://localhost:5000/api/commercant/register',
         newCommercant
       );
 
       setMessage(response.data.message);
-      navigate("/");
+      navigate('/');
     } catch (error) {
       if (error.response) {
         setMessage(error.response.data.message);
@@ -38,8 +38,8 @@ function Register() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/assets/bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       ></div>
 
@@ -48,9 +48,7 @@ function Register() {
           <img src="/assets/logo.png" alt="Logo" className="h-20" />
         </div>
 
-        <h2 className="text-center text-lg font-semibold">
-          Inscription
-        </h2>
+        <h2 className="text-center text-lg font-semibold">Inscription</h2>
 
         {message && <p className="text-center text-red-600 mt-2">{message}</p>}
 

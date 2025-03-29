@@ -1,20 +1,19 @@
 .scanner-page {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .scanner-box {
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
-  .scan-result {
-    margin-top: 20px;
-    font-size: 18px;
-    color: green;
-  }
-  
+  text-align: center;
+  padding: 20px;
+}
+
+.scanner-box {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.scan-result {
+  margin-top: 20px;
+  font-size: 18px;
+  color: green;
+}
