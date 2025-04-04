@@ -1,33 +1,38 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ResetPasswordPage = () => {
-  const { token } = useParams();  // Récupérer le token depuis l'URL
+  const { token } = useParams(); // Récupérer le token depuis l'URL
   const navigate = useNavigate();
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError('Les mots de passe ne correspondent pas.');
       return;
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/commercant/reset-password/${token}`, { newPassword });
+      const response = await axios.post(
+        `http://localhost:5000/api/commercant/reset-password/${token}`,
+        { newPassword }
+      );
       setMessage(response.data.message);
-      setError("");
+      setError('');
 
       // Rediriger vers la page de connexion après 3 secondes
-      setTimeout(() => navigate("/"), 3000);
+      setTimeout(() => navigate('/'), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors de la réinitialisation.");
+      setError(
+        err.response?.data?.message || 'Erreur lors de la réinitialisation.'
+      );
     }
   };
 
@@ -38,8 +43,8 @@ const ResetPasswordPage = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: "url('/assets/bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       ></div>
 
@@ -50,11 +55,17 @@ const ResetPasswordPage = () => {
           <img src="/assets/logo.png" alt="Logo" className="h-20" />
         </div>
 
-        <h2 className="text-center text-xl font-semibold text-gray-800">Réinitialisation du mot de passe</h2>
-        <p className="text-center text-sm text-gray-600 mb-4">Veuillez entrer votre nouveau mot de passe.</p>
+        <h2 className="text-center text-xl font-semibold text-gray-800">
+          Réinitialisation du mot de passe
+        </h2>
+        <p className="text-center text-sm text-gray-600 mb-4">
+          Veuillez entrer votre nouveau mot de passe.
+        </p>
 
         {/* Affichage du message */}
-        {message && <p className="text-center text-green-600 mt-4">{message}</p>}
+        {message && (
+          <p className="text-center text-green-600 mt-4">{message}</p>
+        )}
         {error && <p className="text-center text-red-600 mt-4">{error}</p>}
 
         <form onSubmit={handleSubmit}>

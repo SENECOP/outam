@@ -1,12 +1,12 @@
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../context/AppContext";
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 
 const LoginRestaurant = () => {
-  const [email, setEmail] = useState("");
-  const [motDePasse, setMotDePasse] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [motDePasse, setMotDePasse] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useAppContext();
   const navigate = useNavigate();
@@ -14,12 +14,12 @@ const LoginRestaurant = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
+    setError('');
 
     try {
       // 1. Authentification
       const authResponse = await axios.post(
-        "http://localhost:5000/api/restaurant/login", 
+        'http://localhost:5000/api/restaurant/login',
         { email, motDePasse }
       );
 
@@ -27,7 +27,7 @@ const LoginRestaurant = () => {
 
       // 2. Récupération des données utilisateur
       const userResponse = await axios.get(
-        "http://localhost:5000/api/restaurant/commercant/me",
+        'http://localhost:5000/api/restaurant/commercant/me',
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -45,20 +45,19 @@ const LoginRestaurant = () => {
       const userData = {
         ...userResponse.data,
         token,
-        restaurant: restaurantData // Ajout des données complètes du restaurant
+        restaurant: restaurantData, // Ajout des données complètes du restaurant
       };
 
       // 5. Mise à jour du contexte
       loginUser(userData);
 
       // 6. Redirection
-      navigate("/homer");
-
+      navigate('/homer');
     } catch (error) {
-      console.error("Erreur de connexion:", error);
+      console.error('Erreur de connexion:', error);
       setError(
-        error.response?.data?.message || 
-        "Erreur de connexion. Veuillez réessayer."
+        error.response?.data?.message ||
+          'Erreur de connexion. Veuillez réessayer.'
       );
     } finally {
       setIsLoading(false);
@@ -71,8 +70,10 @@ const LoginRestaurant = () => {
         backgroundSize: "cover"
      }}>
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center mb-6">Se connecter</h2>
-        
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Se connecter
+        </h2>
+
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
@@ -111,11 +112,11 @@ const LoginRestaurant = () => {
             disabled={isLoading}
             className={`w-full py-2 rounded-lg focus:outline-none ${
               isLoading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
             }`}
           >
-            {isLoading ? "Connexion en cours..." : "Se connecter"}
+            {isLoading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
         </form>
       </div>

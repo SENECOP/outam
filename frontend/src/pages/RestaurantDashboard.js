@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import EditMenuItemForm from "../components/EditMenuItemForm";
-import { useAppContext } from "../context/AppContext";
-import { useNavigate } from "react-router-dom";
-
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import EditMenuItemForm from '../components/EditMenuItemForm';
+import { useAppContext } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function RestaurantDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -40,19 +39,25 @@ export default function RestaurantDashboard() {
   const fetchMenuItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/restaurant/${id}/daily-menu`);
+      const response = await fetch(
+        `http://localhost:5000/api/restaurant/${id}/daily-menu`
+      );
       const data = await response.json();
 
       if (response.ok && data.dailyMenus) {
         // Filtre les menus pour le jour actuel
-        const today = new Date().toLocaleDateString("fr-FR", { weekday: "long" }).toLowerCase();
-        const todayMenu = data.dailyMenus.filter(menu => menu.day.toLowerCase() === today && menu.isActive);
+        const today = new Date()
+          .toLocaleDateString('fr-FR', { weekday: 'long' })
+          .toLowerCase();
+        const todayMenu = data.dailyMenus.filter(
+          (menu) => menu.day.toLowerCase() === today && menu.isActive
+        );
         setMenuItems(todayMenu.length > 0 ? todayMenu[0].dishes : []);
       } else {
-        setError(data.message || "Erreur lors du chargement du menu");
+        setError(data.message || 'Erreur lors du chargement du menu');
       }
     } catch (error) {
-      setError("Erreur de connexion au serveur");
+      setError('Erreur de connexion au serveur');
     } finally {
       setLoading(false);
     }
@@ -85,7 +90,7 @@ export default function RestaurantDashboard() {
   const handleQRCodeClick = (e) => {
     if (!currentRestaurant) {
       e.preventDefault();
-      alert("Aucun restaurant sélectionné");
+      alert('Aucun restaurant sélectionné');
       navigate('/restaurants'); // Redirige vers la page de sélection
     }
   };
@@ -100,7 +105,9 @@ export default function RestaurantDashboard() {
               <div className="bg-blue-100 p-3 rounded-full mr-4 shadow-md">
                 <BookOpen size={24} className="text-blue-500" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">Menu du restaurant</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Menu du restaurant
+              </h1>
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
@@ -109,11 +116,11 @@ export default function RestaurantDashboard() {
                   Menu actuel
                 </button>
                 <Link
-  to={`/gerermenu/${id}`}
-  className="text-gray-600 hover:text-gray-800 px-3 py-2"
->
-  Gerer menu
-</Link>
+                  to={`/gerermenu/${id}`}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Gerer menu
+                </Link>
 
 <Link
             to={`/restaurant/${currentRestaurant._id}/menu/create`}
@@ -129,12 +136,16 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
       Creer une categorie
     </Link>
                 <Link
-      to={currentRestaurant ? `/restaurants/${currentRestaurant._id}/qrcode` : "#"}
-      onClick={handleQRCodeClick}
-      className="text-gray-600 hover:text-gray-800 px-3 py-2"
-    >
-      QR Code
-    </Link>
+                  to={
+                    currentRestaurant
+                      ? `/restaurants/${currentRestaurant._id}/qrcode`
+                      : '#'
+                  }
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  QR Code
+                </Link>
                 <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   Historique
                 </button>
@@ -167,17 +178,24 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
                           <div className="flex justify-between items-start">
                             <div>
                               <h1 className="font-semibold text-gray-800">
-                                {item.title || "Titre non disponible"} 
+                                {item.title || 'Titre non disponible'}
                                 <span className="text-blue-600">
-                                 ({item.price ? `${item.price} FCFA` : "Prix non disponible"})
+                                  (
+                                  {item.price
+                                    ? `${item.price} FCFA`
+                                    : 'Prix non disponible'}
+                                  )
                                 </span>
                               </h1>
-                              <p className="text-green-500">{item.category || "Catégorie non définie"}</p>
+                              <p className="text-green-500">
+                                {item.category || 'Catégorie non définie'}
+                              </p>
 
                               <p className="text-sm text-gray-600 mt-1">
                                 {expandedItems[itemId] ? (
                                   <>
-                                    {item.description || "Aucune description disponible"}
+                                    {item.description ||
+                                      'Aucune description disponible'}
                                     <button
                                       className="text-blue-500 ml-2 text-sm"
                                       onClick={(e) => {
@@ -190,20 +208,24 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
                                   </>
                                 ) : (
                                   <>
-                                    {item.description && item.description.split(" ").length > 20
-                                      ? `${item.description.split(" ").slice(0, 20).join(" ")}...`
-                                      : item.description || "Aucune description disponible"}
-                                    {item.description && item.description.split(" ").length > 20 && (
-                                      <button
-                                        className="text-blue-500 ml-2 text-sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          toggleDescription(itemId);
-                                        }}
-                                      >
-                                        Voir plus
-                                      </button>
-                                    )}
+                                    {item.description &&
+                                    item.description.split(' ').length > 20
+                                      ? `${item.description.split(' ').slice(0, 20).join(' ')}...`
+                                      : item.description ||
+                                        'Aucune description disponible'}
+                                    {item.description &&
+                                      item.description.split(' ').length >
+                                        20 && (
+                                        <button
+                                          className="text-blue-500 ml-2 text-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleDescription(itemId);
+                                          }}
+                                        >
+                                          Voir plus
+                                        </button>
+                                      )}
                                   </>
                                 )}
                               </p>
@@ -215,7 +237,7 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
                                 toggleEditForm(itemId);
                               }}
                             >
-                              {editForm === itemId ? "Fermer" : "Modifier"}
+                              {editForm === itemId ? 'Fermer' : 'Modifier'}
                             </button>
                           </div>
 

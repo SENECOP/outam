@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from "../context/AppContext";
 
@@ -26,8 +26,11 @@ export default function GererMenu({ user }) {
     const fetchRestaurant = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/restaurant/${id}`);
-        if (!response.ok) throw new Error("Erreur lors du chargement des données");
+        const response = await fetch(
+          `http://localhost:5000/api/restaurant/${id}`
+        );
+        if (!response.ok)
+          throw new Error('Erreur lors du chargement des données');
 
         const data = await response.json();
         setRestaurant(data);
@@ -92,7 +95,9 @@ export default function GererMenu({ user }) {
               <div className="bg-blue-100 p-3 rounded-full mr-4 shadow-md">
                 <BookOpen size={24} className="text-blue-500" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">Menu du restaurant</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Menu du restaurant
+              </h1>
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
@@ -112,7 +117,9 @@ export default function GererMenu({ user }) {
                 <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   QR Code
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Historique</button>
+                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  Historique
+                </button>
               </div>
             </nav>
 
@@ -122,11 +129,19 @@ export default function GererMenu({ user }) {
                   <div>
                     <h2 className="text-lg font-semibold">Menu {menu.day}</h2>
                     <div className="flex items-center gap-32">
-                      <p className="text-sm text-gray-500">Créé : {new Date(menu.createdAt).toLocaleString()}</p>
                       <p className="text-sm text-gray-500">
-                        Catégories : {[...new Set(menu.dishes.map((dish) => dish.category))].length}
+                        Créé : {new Date(menu.createdAt).toLocaleString()}
                       </p>
-                      <p className="text-sm text-gray-500">Plats : {menu.dishes?.length || 0}</p>
+                      <p className="text-sm text-gray-500">
+                        Catégories :{' '}
+                        {
+                          [...new Set(menu.dishes.map((dish) => dish.category))]
+                            .length
+                        }
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Plats : {menu.dishes?.length || 0}
+                      </p>
                     </div>
                   </div>
 
@@ -142,7 +157,9 @@ export default function GererMenu({ user }) {
                       />
                       <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer ${menu.isActive ? 'peer-checked:bg-green-500' : ''} ${isToggling ? 'opacity-50 cursor-not-allowed' : ''} peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
                     </label>
-                    <span className="text-sm text-gray-500 ml-2">Désactivé</span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      Désactivé
+                    </span>
                   </div>
                 </div>
               ))}

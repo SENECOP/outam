@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { CookiesProvider } from 'react-cookie';  // Import du CookiesProvider
+import { CookiesProvider } from 'react-cookie'; // Import du CookiesProvider
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -21,8 +21,6 @@ import MenuCreation from './pages/MenuCreation';
 import CategoryManager from './pages/CategoryManager';
 import RegisterRestaurant from './pages/RegisterRestaurant';
 import DailyMenu from './pages/DailyMenu';
-
-
 
 function App() {
   return (
@@ -55,14 +53,10 @@ function App() {
 
 
 
-  {/* <Route path="/restaurants/:id/menu/add" element={<AddMenuItemPage />} />
-  <Route path="/restaurants/:id/menu/:itemId/edit" element={<EditMenuItemPage />} />
-
-          <Route path="/hoteldashbord" element={<HotelDashbord />} /> */}
-        </Routes>
   
-    </CookiesProvider>
-    </AppProvider>
+          </Routes>
+        </CookiesProvider>
+      </AppProvider>
     </BrowserRouter>
   );
 }

@@ -15,14 +15,17 @@ export const AuthProvider = ({ children }) => {
   // Fonction pour récupérer les informations du commerçant
   const fetchCommercantInfo = async (token) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/commercant/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        'http://localhost:5000/api/commercant/me',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setCommercant(response.data); // Mettre à jour les infos du commerçant
     } catch (err) {
-      console.error("Erreur de récupération du commerçant", err);
+      console.error('Erreur de récupération du commerçant', err);
     } finally {
       setLoading(false);
     }
@@ -30,7 +33,10 @@ export const AuthProvider = ({ children }) => {
 
   // Effet pour vérifier si un token existe dans le cookie ou autre stockage sécurisé
   useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    const token = document.cookie.replace(
+      /(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/,
+      '$1'
+    );
 
     if (token) {
       fetchCommercantInfo(token);
@@ -41,7 +47,10 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, motDePasse) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/commercant/loginr', { email, motDePasse });
+      const response = await axios.post(
+        'http://localhost:5000/api/commercant/loginr',
+        { email, motDePasse }
+      );
       const token = response.data.token;
 
       // Mettre le token dans les cookies
@@ -50,13 +59,13 @@ export const AuthProvider = ({ children }) => {
       // Récupérer les informations du commerçant
       fetchCommercantInfo(token);
     } catch (err) {
-      throw new Error("Erreur de connexion.");
+      throw new Error('Erreur de connexion.');
     }
   };
 
   const logout = () => {
     setCommercant(null);
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"; // Supprimer le cookie
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'; // Supprimer le cookie
   };
 
   return (
