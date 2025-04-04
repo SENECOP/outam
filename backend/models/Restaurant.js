@@ -8,7 +8,7 @@ const dishSchema = new mongoose.Schema({
     description: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, default: 'default-image.jpg' },
-    category: { type: String, required: true } // Exemple: "Entrée", "Plat principal", "Dessert"
+    category: { type: String, required: true } 
 }, { timestamps: true });
 
 // 🔹 Modèle de Menu (Menu) (avec `day` ici UNIQUEMENT)

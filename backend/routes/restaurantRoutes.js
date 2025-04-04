@@ -39,9 +39,57 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }  // 5MB max
 });
+
+router.post('/registeresto', async (req, res) => {
+    const { name, email, motDePasse, commercantName } = req.body;
+  
+    if (!name || !email || !motDePasse || !commercantName) {
+      return res.status(400).json({ message: 'Tous les champs sont requis.' });
+    }
+  
+    try {
+      // Vérifie si le commerçant existe déjà
+      const existingRestaurant = await Restaurant.findOne({ 'commercantInfo.email': email });
+      if (existingRestaurant) {
+        return res.status(400).json({ message: 'Cet email est déjà utilisé.' });
+      }
+  
+      // Hash du mot de passe
+      const hashedPassword = await bcrypt.hash(motDePasse, 12);
+  
+      // Création du restaurant
+      const newRestaurant = new Restaurant({
+        name,
+        commercantInfo: {
+          name: commercantName,
+          email,
+          motDePasse: hashedPassword
+        }
+      });
+  
+      await newRestaurant.save();
+  
+      // Création du token JWT
+      const token = jwt.sign(
+        { id: newRestaurant._id, email },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+  
+      res.status(201).json({
+        message: 'Restaurant et commerçant créés avec succès.',
+        token,
+        restaurantId: newRestaurant._id
+      });
+    } catch (error) {
+      console.error("Erreur lors de l'inscription :", error);
+      res.status(500).json({ message: "Erreur serveur." });
+    }
+  });
+  
 // 1. Création d'un Restaurant (POST /restaurants)
 router.post('/restaurants', async (req, res) => {
-    const { name, menu, commercantInfo } = req.body;
+    const { name, menus, commercantInfo } = req.body;
     
     try {
         // Vérifier si le commerçant existe déjà (par email) dans le restaurant
@@ -57,7 +105,7 @@ router.post('/restaurants', async (req, res) => {
         // Créer un nouveau restaurant avec les informations du commerçant
         const newRestaurant = new Restaurant({
             name,
-            menu,
+            menus,
             commercantInfo: {
                 name: commercantInfo.name,
                 email: commercantInfo.email,
@@ -361,90 +409,111 @@ router.get('/:id/daily-menu', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 });
-router.put("/:restaurantId/menu/:menuId", async (req, res) => {
+
+router.patch('/:restaurantId/menus/:menuId/status', async (req, res) => {
+    const { restaurantId, menuId } = req.params;
+    const { isActive } = req.body;
+
     try {
-        const { restaurantId, menuId } = req.params;
-        const { isActive } = req.body;
-
-        console.log("🔹 Requête reçue pour mettre à jour un menu");
-        console.log("➡️ Restaurant ID :", restaurantId);
-        console.log("➡️ Menu ID :", menuId);
-        console.log("➡️ isActive :", isActive);
-
-        // Vérifications de base
-        if (!mongoose.Types.ObjectId.isValid(restaurantId) || !mongoose.Types.ObjectId.isValid(menuId)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "IDs invalides" 
-            });
-        }
-
-        if (isActive === undefined) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Le champ isActive est requis" 
-            });
-        }
-
-        // Conversion du menuId en ObjectId
-        const menuObjectId = new mongoose.Types.ObjectId(menuId);
-
-        // Recherche du restaurant
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Restaurant non trouvé" 
-            });
+            return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
         }
 
-        console.log("✔️ Restaurant trouvé :", restaurant.name);
-
-        // Vérification de la structure des menus
-        if (!restaurant.menus || restaurant.menus.length === 0) {
-            return res.status(404).json({ 
-                success: false, 
-                message: "Aucun menu trouvé pour ce restaurant" 
-            });
-        }
-
-        // 🔹 Recherche du menu avec conversion correcte
-        const menu = restaurant.menus.find(m => m._id.equals(menuObjectId));
-
+        const menu = restaurant.menus.id(menuId);
         if (!menu) {
-            console.log("❌ Menu non trouvé, liste des menus existants :", restaurant.menus.map(m => m._id.toString()));
-            return res.status(404).json({ 
-                success: false, 
-                message: "Menu non trouvé",
-                debug: {
-                    menuIdReceived: menuId,
-                    existingMenuIds: restaurant.menus.map(m => m._id.toString()) 
-                }
+            return res.status(404).json({ success: false, message: "Menu non trouvé" });
+        }
+
+        // Si on active un menu, désactiver tous les autres d'abord
+        if (isActive) {
+            restaurant.menus.forEach(m => {
+                m.isActive = false;
             });
         }
 
-        console.log("✔️ Menu trouvé :", menu.name);
-
-        // Mise à jour du statut 'isActive'
         menu.isActive = isActive;
-
-        // Sauvegarde du restaurant après mise à jour du menu
         await restaurant.save();
-
-        console.log("✅ Menu mis à jour avec succès");
 
         res.status(200).json({ 
             success: true, 
-            message: "Menu mis à jour avec succès", 
-            menu 
+            message: `Menu ${isActive ? "activé (autres menus désactivés)" : "désactivé"}`,
+            data: menu 
         });
     } catch (error) {
-        console.error("❌ Erreur serveur:", error);
-        res.status(500).json({ 
-            success: false, 
-            message: "Erreur serveur", 
-            error: error.message 
-        });
+        res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
+    }
+});
+
+router.post('/:restaurantId/menus', upload.single('image'), async (req, res) => {
+    const { restaurantId } = req.params;
+    const { name, day, dishes } = req.body;
+
+    try {
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
+        }
+
+        // Validation du jour
+        const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+        if (!days.includes(day.toLowerCase())) {
+            return res.status(400).json({ success: false, message: "Jour invalide" });
+        }
+
+        const newMenu = {
+            name,
+            day: day.toLowerCase(),
+            dishes: dishes.map(dish => ({
+                ...dish,
+                price: Number(dish.price),
+                image: dish.image || 'default-image.jpg'
+            })),
+            numberOfDishes: dishes.length,
+            isActive: false // Désactivé par défaut (à activer manuellement)
+        };
+
+        restaurant.menus.push(newMenu);
+        await restaurant.save();
+
+        res.status(201).json({ success: true, data: newMenu });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
+    }
+});
+
+
+
+router.post('/:restaurantId/menus/:menuId/dishes', upload.single('image'), validateMenuItem, async (req, res) => {
+    const { restaurantId, menuId } = req.params;
+    const { title, description, price, category } = req.body;
+
+    try {
+        const restaurant = await Restaurant.findById(restaurantId);
+        if (!restaurant) {
+            return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
+        }
+
+        const menu = restaurant.menus.id(menuId);
+        if (!menu) {
+            return res.status(404).json({ success: false, message: "Menu non trouvé" });
+        }
+
+        const newDish = {
+            title,
+            description,
+            price: Number(price),
+            category,
+            image: req.file ? '/uploads/' + req.file.filename : 'default-image.jpg'
+        };
+
+        menu.dishes.push(newDish);
+        menu.numberOfDishes = menu.dishes.length; // Mise à jour du compteur
+        await restaurant.save();
+
+        res.status(201).json({ success: true, data: newDish });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
     }
 });
  

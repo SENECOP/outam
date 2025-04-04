@@ -27,8 +27,10 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
-app.use(cors());
-app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:3000', // Autorise uniquement le frontend
+  credentials: true
+}));app.use(cookieParser());
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use(express.urlencoded({ extended: true }));
