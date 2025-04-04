@@ -1,4 +1,6 @@
 [build]
-  base = "frontend"  # Sets the base directory for the build
-  command = "npm install --force && npm run build"
-  publish = "frontend/build"  # Where the built files are located
+  command = "npm install --legacy-peer-deps && npm run build"
+  publish = "frontend/build"
+[build.environment]
+  NODE_VERSION = "16"  # Matches react-qr-reader's requirements
+  NPM_FLAGS = "--legacy-peer-deps"
