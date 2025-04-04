@@ -1,6 +1,21 @@
-import { Home, List, ShoppingCart, BarChart, User, LogOut, } from "lucide-react";
+import { Home, List, ShoppingCart, BarChart, User,LogOut } from "lucide-react";
+import { useAppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie"; // Importation de la gestion des cookies
 
 export default function Sidebar({ isSidebarOpen }) {
+  const { user } = useAppContext();
+  const navigate = useNavigate();
+  const [cookies, setCookie, removeCookie] = useCookies(["accessToken", "refreshToken"]);
+
+  const handleLogout = () => {
+    // Supprimer les cookies d'authentification
+    removeCookie("accessToken", { path: "/" });
+    removeCookie("refreshToken", { path: "/" });
+
+    // Rediriger l'utilisateur vers la page de connexion
+    navigate("/loginrestaurant");
+  };
   return (
     
     <aside
@@ -10,9 +25,15 @@ export default function Sidebar({ isSidebarOpen }) {
   
       {/* Contenu de la sidebar */}
       <div className="flex items-center space-x-4">
-        <img src="assets/p1.jpeg" alt="Profil" className="w-10 h-10 rounded-full object-cover" />
-        <span className="font-semibold">Salim FADALI</span>
-      </div>
+      {user?.photoDeProfil && (
+                            <img
+                                src={user.photoDeProfil}
+                                alt="Profil"
+                                className="w-12 h-12 rounded-lg"
+                            />
+                        )}        
+                        
+          <span className="font-semibold">{user.name || "Nom inconnu"}</span>      </div>
       <h2 className="text-xl font-bold">Mon Compte</h2>
       <nav className="flex flex-col space-y-2">
         {/* Liens de la sidebar */}
@@ -51,12 +72,13 @@ export default function Sidebar({ isSidebarOpen }) {
   <span>Compte et profils</span>
 </a>
 
-<a href="#" className="flex items-center space-x-2 hover:bg-red-100 p-2 rounded">
-  <div className="bg-red-500 p-2 rounded-full"> {/* Fond rouge pour l'icône Déconnexion */}
-    <LogOut size={20} className="text-white" />
-  </div>
-  <span>Déconnexion</span>
-</a>
+<a href="#" onClick={handleLogout} className="flex items-center space-x-2 hover:bg-red-100 p-2 rounded">
+      <div className="bg-red-500 p-2 rounded-full">
+        {/* Icône de déconnexion */}
+        <LogOut size={20} className="text-white" />
+      </div>
+      <span>Déconnexion</span>
+    </a>
       </nav>
     </aside>
   );

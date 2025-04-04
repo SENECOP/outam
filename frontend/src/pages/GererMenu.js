@@ -4,6 +4,7 @@ import { BookOpen } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { useNavigate } from 'react-router-dom';
+import { useAppContext } from "../context/AppContext";
 
 export default function GererMenu({ user }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -12,7 +13,10 @@ export default function GererMenu({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
   const navigate = useNavigate();
+  const { currentRestaurant } = useAppContext();
+  const restaurantId = currentRestaurant ? currentRestaurant._id : null;
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -35,46 +39,48 @@ export default function GererMenu({ user }) {
     };
 
     fetchRestaurant();
-  }, [id, shouldRefresh]); // Recharger après modification
+  }, [id, shouldRefresh]);
 
-  // ✅ Fonction pour activer/désactiver un menu
   const toggleMenuStatus = async (menuId, currentStatus) => {
+    if (isToggling) return;
+    setIsToggling(true);
+    
     try {
-      const response = await fetch(`http://localhost:5000/api/restaurant/${id}/menu/${menuId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch(`http://localhost:5000/api/restaurant/${id}/menus/${menuId}/status`, {
+        method: "PATCH",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
   
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Erreur serveur:", errorData); // Log l'erreur du serveur pour plus de détails
-        throw new Error(errorData.message || "Erreur lors de la mise à jour du menu");
+      if (!res.ok) {
+        const { message } = await res.json();
+        throw new Error(message || "Échec de la mise à jour");
       }
   
-      // Rafraîchir les données sans rediriger
-      setShouldRefresh((prev) => !prev);
+      setShouldRefresh(prev => !prev);
     } catch (err) {
-      setError("Impossible de mettre à jour le menu: " + err.message);
+      console.error("ToggleMenuStatus Error:", err);
+      setError(err.message);
+    } finally {
+      setIsToggling(false);
     }
   };
-  
-  
+
+  const handleRedirect = () => {
+    if (!user || !user.restaurantId) {
+      console.error("Restaurant ID manquant ou `user` non défini");
+      return;
+    }
+    navigate(`/restaurant/${user.restaurantId}`);
+  };
 
   if (loading) return <p className="text-center text-gray-500">Chargement...</p>;
   if (error) return <p className="text-center text-red-500">Erreur : {error}</p>;
   if (!restaurant) return <p className="text-center text-gray-500">Aucune donnée disponible</p>;
   
-  const handleRedirect = () => {
-    // Vérifiez d'abord si `user` et `user.restaurantId` sont définis
-    if (!user || !user.restaurantId) {
-      console.error("Restaurant ID manquant ou `user` non défini");
-      return;  // Ne pas effectuer la redirection si les données sont manquantes
-    }
-
-    // Si tout est valide, effectuer la redirection
-    navigate(`/restaurant/${user.restaurantId}`);
-  };
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} />
@@ -89,28 +95,29 @@ export default function GererMenu({ user }) {
               <h1 className="text-2xl font-bold text-gray-800">Menu du restaurant</h1>
             </div>
 
-            {/* Navigation */}
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
               <div className="flex space-x-6">
-              <button
-      onClick={handleRedirect}
-      className="text-gray-600 hover:text-gray-800 px-3 py-2">
-      Menu actuel
-    </button>             
-    <Link to={`/gerermenu/${id}`} className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
+                <Link 
+                  to={`/restaurant/${restaurantId}`}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Menu actuel
+                </Link>            
+                <Link to={`/gerermenu/${id}`} className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
                   Gérer menu
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Créer un menu</button>
-                <Link to="/qrcoderesto" className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                <Link to={`/restaurant/${restaurantId}/menu/create`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  Créer un menu
+                </Link>
+                <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   QR Code
                 </Link>
                 <button className="text-gray-600 hover:text-gray-800 px-3 py-2">Historique</button>
               </div>
             </nav>
 
-            {/* Liste des menus */}
-            <div className="bg-white p-6  rounded-lg shadow-md">
-            {restaurant.menus?.map((menu) => (
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              {restaurant.menus?.map((menu) => (
                 <div key={menu._id} className="border-b py-4 flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-semibold">Menu {menu.day}</h2>
@@ -123,7 +130,6 @@ export default function GererMenu({ user }) {
                     </div>
                   </div>
 
-                  {/* ✅ Switch pour activer/désactiver */}
                   <div className="flex items-center">
                     <span className="text-sm text-gray-500 mr-2">Activé</span>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -131,9 +137,10 @@ export default function GererMenu({ user }) {
                         type="checkbox"
                         checked={menu.isActive}
                         onChange={() => toggleMenuStatus(menu._id, menu.isActive)}
+                        disabled={isToggling}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                      <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer ${menu.isActive ? 'peer-checked:bg-green-500' : ''} ${isToggling ? 'opacity-50 cursor-not-allowed' : ''} peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
                     </label>
                     <span className="text-sm text-gray-500 ml-2">Désactivé</span>
                   </div>

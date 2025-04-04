@@ -90,18 +90,25 @@ const QrcodeResto = () => {
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
               <div className="flex space-x-6 justify-start items-center">
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                  Menu actuel
-                </button>
+              <Link 
+            to={`/restaurant/${restaurantId}`}
+            className="text-gray-600 hover:text-gray-800 px-3 py-2"
+          >
+            Menu actuel
+          </Link>
                 <Link
                   to={`/gerermenu/${restaurantId}`}
                   className="text-gray-600 hover:text-gray-800 px-3 py-2"
                 >
                   Gerer menu
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                  Créer un menu
-                </button>
+                <Link
+            to={`/restaurant/${currentRestaurant._id}/menu/create`}
+            onClick={handleQRCodeClick}
+            className="text-gray-600 hover:text-gray-800 px-3 py-2"
+          >
+            Créer un menu
+          </Link>
                 <Link
                   to={currentRestaurant ? `/restaurants/${currentRestaurant._id}/qrcode` : "#"}
                   onClick={handleQRCodeClick}

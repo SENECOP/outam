@@ -15,12 +15,12 @@ import QrcodeResto from './pages/qrcodeResto'; // Nom du composant en PascalCase
 import RestaurantPage from './pages/RestaurantPage';
 import RestaurantDetails from './pages/RestaurantDetails';
 import LoginR from './pages/LoginR';
-import Registerresto from './pages/registerresto';
 import LoginRestaurant from './pages/LoginRestaurant';
-import RegisterRestaurant from './pages/ResgisterRestaurant';
 import { AppProvider } from './context/AppContext';
-import MenuPage from './pages/MenuPage';
-import RestaurantDetailsPage from './pages/RestaurantDetailsPage';
+import MenuCreation from './pages/MenuCreation';
+import CategoryManager from './pages/CategoryManager';
+import RegisterRestaurant from './pages/RegisterRestaurant';
+import DailyMenu from './pages/DailyMenu';
 
 
 
@@ -35,7 +35,7 @@ function App() {
           <Route path="/scan" element={<PageScanner />} />
           <Route path="/scan/:idEtablissement" element={<PageClient />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/registeresto" element={<Registerresto />} />
+          {/* <Route path="/registeresto" element={<Registerresto />} /> */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/admin" element={<BackOffice />} />
@@ -46,8 +46,15 @@ function App() {
           <Route path="/restaurants" element={<RestaurantPage />} />
           <Route path="/loginr" element={<LoginR />} />
           <Route path="/loginrestaurant" element={<LoginRestaurant />} />
-          <Route path="/registerestaurant" element={<RegisterRestaurant />} />
+          {/* <Route path="/registerestaurant" element={<RegisterRestaurant />} /> */}
           <Route path="/restaurant/:id" element={<RestaurantDashboard />} />
+          <Route path="/restaurant/:restaurantId/menu/create" element={<MenuCreation />} />
+          <Route path="/addcategorie/:id" element={<CategoryManager />} />
+          <Route path="/registeresto" element={<RegisterRestaurant />} />
+          <Route path="/menu/:id" element={<DailyMenu />} />
+
+
+
   {/* <Route path="/restaurants/:id/menu/add" element={<AddMenuItemPage />} />
   <Route path="/restaurants/:id/menu/:itemId/edit" element={<EditMenuItemPage />} />
 
