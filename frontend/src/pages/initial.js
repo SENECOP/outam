@@ -40,7 +40,7 @@ export default function RestaurantDashboard() {
   const fetchMenuItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/restaurant/${id}/daily-menu`);
+      const response = await fetch(`https://outam.onrender.com/api/restaurant/${id}/daily-menu`);
       const data = await response.json();
 
       if (response.ok && data.dailyMenus) {

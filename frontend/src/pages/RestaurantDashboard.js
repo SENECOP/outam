@@ -40,7 +40,7 @@ export default function RestaurantDashboard() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/restaurant/${id}/daily-menu`
+        `https://outam.onrender.com/api/restaurant/${id}/daily-menu`
       );
       const data = await response.json();
 
@@ -165,7 +165,7 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
                       <div className="p-4 flex items-start">
                         
                       <img
-                      src={item.image?.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
+                      src={item.image?.startsWith('http') ? item.image : `https://outam.onrender.com${item.image}`}
                       alt={item.title || "Image non disponible"}
                       className="w-16 h-16 rounded-md object-cover mr-4"
                       onError={(e) => {

@@ -17,7 +17,7 @@ const MobileDailyMenu = () => {
         setError(null);
         
         const response = await axios.get(
-          `http://localhost:5000/api/restaurant/${restaurantId}/daily-menu`,
+          `https://outam.onrender.com/api/restaurant/${restaurantId}/daily-menu`,
           {
             timeout: 5000,
             headers: { 'Cache-Control': 'no-cache' }
@@ -120,7 +120,7 @@ const MobileDailyMenu = () => {
           filteredMenus.map((dish) => (
             <div key={dish._id} className="bg-white p-2 rounded-lg shadow-sm flex items-center">
               <img
-                src={dish.image?.startsWith("http") ? dish.image : `http://localhost:5000${dish.image}`}
+                src={dish.image?.startsWith("http") ? dish.image : `https://outam.onrender.com${dish.image}`}
                 alt={dish.title}
                 className="w-12 h-12 rounded-lg object-cover mr-2"
                 onError={(e) => {

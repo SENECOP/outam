@@ -32,7 +32,7 @@ const Registerresto = () => {
     try {
       // Envoi des données à l'API pour l'enregistrement du commerçant
       const response = await axios.post(
-        'http://localhost:5000/api/commercant/registeresto',
+        'https://outam.onrender.com/api/commercant/registeresto',
         formData,
         {
           headers: {

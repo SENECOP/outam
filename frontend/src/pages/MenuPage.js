@@ -13,7 +13,7 @@ const MenuPage = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:5000/api/restaurant/${id}/menu`
+          `https://outam.onrender.com/api/restaurant/${id}/menu`
         ); // Remplace par la route de ton API pour récupérer le menu
         const data = await response.json();
 

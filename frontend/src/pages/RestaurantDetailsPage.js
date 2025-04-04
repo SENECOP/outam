@@ -16,7 +16,7 @@ const RestaurantDetailsPage = () => {
     const fetchRestaurantDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/restaurants/${id}`,
+          `https://outam.onrender.com/api/restaurants/${id}`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`,
@@ -37,7 +37,7 @@ const RestaurantDetailsPage = () => {
   const handleDeleteItem = async (itemId) => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/restaurants/${id}/menu/${itemId}`,
+        `https://outam.onrender.com/api/restaurants/${id}/menu/${itemId}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -46,7 +46,7 @@ const RestaurantDetailsPage = () => {
       );
       // Rafraîchir les données
       const updated = await axios.get(
-        `http://localhost:5000/api/restaurants/${id}`,
+        `https://outam.onrender.com/api/restaurants/${id}`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,

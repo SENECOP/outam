@@ -18,7 +18,7 @@ export default function Header({ toggleSidebar }) {
       <div className="ml-auto flex items-center space-x-4">
         {/* Logo */}
         <img
-          src="http://localhost:5000/assets/logo.png" // Logo de haute qualité
+          src="https://outam.onrender.com/assets/logo.png" // Logo de haute qualité
           alt="Logo"
           className="w-16 h-16 object-contain" // Taille ajustée et image non déformée
         />

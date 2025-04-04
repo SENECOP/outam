@@ -15,7 +15,7 @@ const RegisterRestaurant = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/restaurant/registeresto", {
+      const response = await axios.post("https://outam.onrender.com/api/restaurant/registeresto", {
         name,
         commercantName,
         email,
@@ -31,7 +31,7 @@ const RegisterRestaurant = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{ backgroundImage: "url('http://localhost:5000/assets/bg.png')",
+    <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{ backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
         backgroundRepeat: "no-repeat", // Empêche la répétition de l'image
           backgroundSize: "cover"
        }}>

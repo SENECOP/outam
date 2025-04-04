@@ -20,7 +20,7 @@ const RestaurantDetails = () => {
     const fetchRestaurantDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/etablissements/restaurant/${commercantId}`,
+          `https://outam.onrender.com/api/etablissements/restaurant/${commercantId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

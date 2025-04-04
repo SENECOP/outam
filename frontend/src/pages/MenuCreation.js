@@ -34,7 +34,7 @@ function MenuCreation() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/restaurant/${restaurantId}/menus`, {
+      await axios.post(`https://outam.onrender.com/api/restaurant/${restaurantId}/menus`, {
         name: menuTitle,
         day: "lundi",
         dishes,

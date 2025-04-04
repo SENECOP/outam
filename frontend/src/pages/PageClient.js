@@ -18,7 +18,7 @@ const QrcodeResto = () => {
   const toggleMenuVisibility = async () => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/restaurant/${restaurantId}/menu-status`,
+        `https://outam.onrender.com/api/restaurant/${restaurantId}/menu-status`,
         {
           isActive: !isMenuActive,
         }

@@ -19,7 +19,7 @@ const LoginRestaurant = () => {
     try {
       // 1. Authentification
       const authResponse = await axios.post(
-        'http://localhost:5000/api/restaurant/login',
+        'https://outam.onrender.com/api/restaurant/login',
         { email, motDePasse }
       );
 
@@ -27,7 +27,7 @@ const LoginRestaurant = () => {
 
       // 2. Récupération des données utilisateur
       const userResponse = await axios.get(
-        'http://localhost:5000/api/restaurant/commercant/me',
+        'https://outam.onrender.com/api/restaurant/commercant/me',
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -35,7 +35,7 @@ const LoginRestaurant = () => {
       let restaurantData = {};
       if (userResponse.data.restaurantId) {
         const restaurantResponse = await axios.get(
-          `http://localhost:5000/api/restaurant/${userResponse.data.restaurantId}`,
+          `https://outam.onrender.com/api/restaurant/${userResponse.data.restaurantId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         restaurantData = restaurantResponse.data;
@@ -65,7 +65,7 @@ const LoginRestaurant = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100" style={{ backgroundImage: "url('http://localhost:5000/assets/bg.png')",
+    <div className="flex justify-center items-center min-h-screen bg-gray-100" style={{ backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
       backgroundRepeat: "no-repeat", // Empêche la répétition de l'image
         backgroundSize: "cover"
      }}>
