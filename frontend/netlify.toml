@@ -1,4 +1,4 @@
 [build]
   base = "frontend"  # Sets the base directory for the build
-  command = "npm install && npm run build"
+  command = "npm install --force && npm run build"
   publish = "frontend/build"  # Where the built files are located
