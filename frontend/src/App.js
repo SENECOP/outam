@@ -28,7 +28,7 @@ function App() {
     <CookiesProvider>  {/* Envelopper l'application dans CookiesProvider */}
     
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LoginRestaurant />} />
           <Route path="/scan/:idEtablissement" element={<PageClient />} />
           <Route path="/register" element={<Register />} />
           {/* <Route path="/registeresto" element={<Registerresto />} /> */}
@@ -41,7 +41,7 @@ function App() {
           <Route path="/restaurants/:restaurantId/qrcode" element={<QrcodeResto />} /> {/* Correction déjà faite ici */}
           <Route path="/restaurants" element={<RestaurantPage />} />
           <Route path="/loginr" element={<LoginR />} />
-          <Route path="/loginrestaurant" element={<LoginRestaurant />} />
+          {/* <Route path="/loginrestaurant" element={<LoginRestaurant />} /> */}
           {/* <Route path="/registerestaurant" element={<RegisterRestaurant />} /> */}
           <Route path="/restaurant/:id" element={<RestaurantDashboard />} />
           <Route path="/restaurant/:restaurantId/menu/create" element={<MenuCreation />} />
