@@ -386,7 +386,7 @@ router.post('/menu/:restaurantId', async (req, res) => {
 });
 router.get('/:id/daily-menu', async (req, res) => {
     const { id } = req.params;
-    const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long' }); // Ex: "Lundi"
+    const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase(); // Ex: "lundi"
 
     try {
         // Trouver le restaurant
@@ -396,20 +396,20 @@ router.get('/:id/daily-menu', async (req, res) => {
         }
 
         // Filtrer les menus actifs du jour
-        const dailyMenus = restaurant.menus.filter(menu => menu.day === today && menu.isActive);
+        const dailyMenus = restaurant.menus.filter(menu => menu.day.toLowerCase() === today && menu.isActive);
 
         // Si aucun plat n'est trouvé pour aujourd'hui, retourner une réponse avec une liste vide
         if (dailyMenus.length === 0) {
             return res.status(200).json({ message: `Aucun menu actif pour ${today}`, dailyMenus: [] });
         }
 
+        // Retourner les menus du jour
         res.status(200).json({ message: `Plats du jour pour ${today}`, dailyMenus });
     } catch (error) {
         console.error(error);  // Log de l'erreur pour faciliter le débogage côté serveur
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 });
-
 router.patch('/:restaurantId/menus/:menuId/status', async (req, res) => {
     const { restaurantId, menuId } = req.params;
     const { isActive } = req.body;
