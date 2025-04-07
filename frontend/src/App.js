@@ -5,7 +5,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import PageScanner from './pages/PageScanner';
 import PageClient from './pages/PageClient';
 import BackOffice from './pages/BackOffice';
 import RestaurantDashboard from './pages/RestaurantDashboard';
@@ -30,7 +29,6 @@ function App() {
     
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/scan" element={<PageScanner />} />
           <Route path="/scan/:idEtablissement" element={<PageClient />} />
           <Route path="/register" element={<Register />} />
           {/* <Route path="/registeresto" element={<Registerresto />} /> */}
