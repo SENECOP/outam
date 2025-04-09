@@ -49,7 +49,7 @@ function App() {
           <Route path="/restaurant/:restaurantId/menu/create" element={<MenuCreation />} />
           <Route path="/addcategorie/:id" element={<CategoryManager />} />
           <Route path="/registeresto" element={<RegisterRestaurant />} />
-          <Route path="/menu/:id" element={<DesktopDailyMenu />} />
+          <Route path="/menu/:restaurantId" element={<DesktopDailyMenu />} />
           <Route path="/restaurant/:id/dish/:dishId" element={<DishDetail />} />
 
   
