@@ -17,28 +17,17 @@ const validateMenuItem = (req, res, next) => {
     next();
   };
 
-// Chemin absolu vers le dossier uploads
-const uploadPath = path.join(__dirname, '..', 'uploads');
-
-// Créer le dossier s'il n'existe pas
-const fs = require('fs');
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
+// Configuration de Multer pour le stockage des fichiers
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadPath);  // Utilisation du chemin absolu
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-
-const upload = multer({ 
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }  // 5MB max
-});
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname));
+    }
+  });
+  
+  const upload = multer({ storage: storage });
 
 router.post('/registeresto', async (req, res) => {
     const { name, email, motDePasse, commercantName } = req.body;
@@ -445,10 +434,51 @@ router.patch('/:restaurantId/menus/:menuId/status', async (req, res) => {
     }
 });
 
-router.post('/:restaurantId/menus', upload.single('image'), async (req, res) => {
-    const { restaurantId } = req.params;
-    const { name, day, dishes } = req.body;
+// router.post('/:restaurantId/menus', upload.single('image'), async (req, res) => {
+//     const { restaurantId } = req.params;
+//     const { name, day, dishes } = req.body;
 
+//     try {
+//         const restaurant = await Restaurant.findById(restaurantId);
+//         if (!restaurant) {
+//             return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
+//         }
+
+//         // Validation du jour
+//         const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+//         if (!days.includes(day.toLowerCase())) {
+//             return res.status(400).json({ success: false, message: "Jour invalide" });
+//         }
+
+//         const newMenu = {
+//             name,
+//             day: day.toLowerCase(),
+//             dishes: dishes.map(dish => ({
+//                 ...dish,
+//                 price: Number(dish.price),
+//                 image: dish.image || 'default-image.jpg'
+//             })),
+//             numberOfDishes: dishes.length,
+//             isActive: false // Désactivé par défaut (à activer manuellement)
+//         };
+
+//         restaurant.menus.push(newMenu);
+//         await restaurant.save();
+
+//         res.status(201).json({ success: true, data: newMenu });
+//     } catch (error) {
+//         res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
+//     }
+// });
+
+// Dans votre fichier de routes (backend)
+
+
+// Route modifiée pour gérer plusieurs images
+router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
+    const { restaurantId } = req.params;
+    const { name, day } = req.body;
+    
     try {
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
@@ -461,28 +491,73 @@ router.post('/:restaurantId/menus', upload.single('image'), async (req, res) => 
             return res.status(400).json({ success: false, message: "Jour invalide" });
         }
 
+        // Récupération des données des plats
+        let dishes = [];
+        if (req.body.dishes) {
+            // Si les plats sont envoyés en JSON stringifié
+            dishes = typeof req.body.dishes === 'string' 
+                ? JSON.parse(req.body.dishes) 
+                : req.body.dishes;
+        }
+
+        // Association des images aux plats
+        const files = req.files || [];
+        const dishesWithImages = dishes.map((dish, index) => {
+            const imageFile = files.find(f => f.fieldname === `dishes[${index}][image]`);
+            return {
+                ...dish,
+                price: Number(dish.price),
+                image: imageFile ? '/uploads/' + imageFile.filename : 'default-image.jpg'
+            };
+        });
+
         const newMenu = {
             name,
             day: day.toLowerCase(),
-            dishes: dishes.map(dish => ({
-                ...dish,
-                price: Number(dish.price),
-                image: dish.image || 'default-image.jpg'
-            })),
-            numberOfDishes: dishes.length,
-            isActive: false // Désactivé par défaut (à activer manuellement)
+            dishes: dishesWithImages,
+            numberOfDishes: dishesWithImages.length,
+            isActive: false
         };
 
         restaurant.menus.push(newMenu);
         await restaurant.save();
 
-        res.status(201).json({ success: true, data: newMenu });
+        res.status(201).json({ 
+            success: true, 
+            message: "Menu créé avec succès",
+            data: newMenu 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
+        console.error("Erreur création menu:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Erreur serveur", 
+            error: error.message 
+        });
     }
 });
-
-
+router.get('/:id/menus/active', async (req, res) => {
+    const { id } = req.params;
+  
+    try {
+      const restaurant = await Restaurant.findById(id);
+      if (!restaurant) {
+        return res.status(404).json({ message: 'Restaurant non trouvé' });
+      }
+  
+      // Trouver le premier menu actif
+      const activeMenu = restaurant.menus.find(menu => menu.isActive);
+  
+      if (!activeMenu) {
+        return res.status(200).json({ message: 'Aucun menu actif trouvé' });
+      }
+  
+      res.status(200).json({ menu: activeMenu });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur serveur', error: error.message });
+    }
+  });
 
 router.post('/:restaurantId/menus/:menuId/dishes', upload.single('image'), validateMenuItem, async (req, res) => {
     const { restaurantId, menuId } = req.params;
@@ -516,5 +591,57 @@ router.post('/:restaurantId/menus/:menuId/dishes', upload.single('image'), valid
         res.status(500).json({ success: false, message: "Erreur serveur", error: error.message });
     }
 });
- 
+router.get('/:restaurantId/dish/:dishId', async (req, res) => {
+    const { restaurantId, dishId } = req.params;
+  
+    try {
+      const restaurant = await Restaurant.findById(restaurantId);
+  
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant non trouvé" });
+      }
+  
+      // Chercher dans tous les menus du restaurant
+      for (const menu of restaurant.menus) {
+        const dish = menu.dishes.id(dishId); // Méthode Mongoose pour accéder à un sous-document par ID
+  
+        if (dish) {
+          return res.status(200).json(dish);
+        }
+      }
+  
+      return res.status(404).json({ message: "Plat non trouvé" });
+    } catch (error) {
+      console.error("Erreur lors de la récupération du plat :", error);
+      return res.status(500).json({ message: "Erreur serveur" });
+    }
+  });
+
+router.get('/:restaurantId/dishes', async (req, res) => {
+    const { restaurantId } = req.params;
+  
+    try {
+      const restaurant = await Restaurant.findById(restaurantId);
+  
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant non trouvé" });
+      }
+  
+      // Récupérer tous les plats de tous les menus du restaurant
+      const allDishes = [];
+      for (const menu of restaurant.menus) {
+        allDishes.push(...menu.dishes); // Rassemble tous les plats de chaque menu
+      }
+  
+      if (allDishes.length === 0) {
+        return res.status(404).json({ message: "Aucun plat trouvé" });
+      }
+  
+      return res.status(200).json(allDishes); // Renvoie tous les plats disponibles
+    } catch (error) {
+      console.error("Erreur lors de la récupération des plats :", error);
+      return res.status(500).json({ message: "Erreur serveur" });
+    }
+  });
+  
 module.exports = router;

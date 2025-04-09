@@ -55,6 +55,10 @@ mongoose
     console.error("❌ Erreur de connexion MongoDB :", err.message);
     process.exit(1);
   });
+
+app.get('/', (req, res) => {
+res.send('Backend is working!');
+});
 // Utiliser les routes des commerçants
 app.use("/api/commercant", commercantRoutes);
 app.use("/api/etablissements", etablissementRoutes);
