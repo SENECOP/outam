@@ -39,11 +39,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Fichiers statiques
-app.use('/assets', express.static(path.join(__dirname, 'assets'), {
-  setHeaders: (res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-  }
-}));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connexion MongoDB
