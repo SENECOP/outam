@@ -32,7 +32,7 @@ const QrcodeResto = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
-  const restaurantUrl = `https://www.qr-oulem.restaurantcheasilm.com/restaurant/${restaurantId}/menu`;
+  const restaurantUrl = `https://outam.onrender.com/menu/${restaurantId}`;
 
   const toggleMenuVisibility = async () => {
     try {
