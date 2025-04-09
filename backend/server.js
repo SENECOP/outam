@@ -39,31 +39,9 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Fichiers statiques
-app.use('/assets', express.static(path.join(__dirname, 'assets'), {
-  setHeaders: (res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Credentials', 'true');
-    res.set('Cache-Control', 'public, max-age=86400');
-  }
-}));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
-  setHeaders: (res, path) => {
-    // Autoriser l'accès depuis tous les domaines (ou spécifiez vos origines)
-    res.set('Access-Control-Allow-Origin', '*');
-    
-    // Autoriser les credentials si nécessaire (pour les cookies, auth)
-    res.set('Access-Control-Allow-Credentials', 'true');
-    
-    // Optimisation du cache
-    if (path.endsWith('.jpg') || path.endsWith('.png') || path.endsWith('.jpeg')) 
-       {
-      res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    }
-    
-    // Headers de sécurité supplémentaires
-    res.set('X-Content-Type-Options', 'nosniff');
-  }
-}));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Connexion MongoDB
 const mongoURI = process.env.MONGODB_URL;
 if (!mongoURI) {
