@@ -20,7 +20,7 @@ const DishDetail = () => {
         setError(null);
 
         const res = await axios.get(
-          `http://localhost:5000/api/restaurant/${restaurantId}/dish/${dishId}`
+          `https://outam.onrender.com/api/restaurant/${restaurantId}/dish/${dishId}`
         );
 
         setDish(res.data);

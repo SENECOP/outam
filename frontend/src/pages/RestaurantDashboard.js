@@ -41,7 +41,7 @@ export default function RestaurantDashboard() {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/restaurant/${id}/menus/active`
+        `https://outam.onrender.com/api/restaurant/${id}/menus/active`
       );
       const data = await response.json();
 

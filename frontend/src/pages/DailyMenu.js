@@ -23,7 +23,7 @@ const DesktopDailyMenu = () => {
         setError(null);
 
         const response = await axios.get(
-          `http://localhost:5000/api/restaurant/${restaurantId}/menus/active`,
+          `https://outam.onrender.com/api/restaurant/${restaurantId}/menus/active`,
           {
             timeout: 5000,
             headers: { "Cache-Control": "no-cache" },
