@@ -20,7 +20,14 @@ const QrcodeResto = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const [isMenuDisabled, setIsMenuDisabled] = useState(false); // ou vrai selon votre condition
-
+  const { id } = useParams();
+  const handleQRCodeClick = (e) => {
+    if (!currentRestaurant) {
+      e.preventDefault();
+      alert('Aucun restaurant sélectionné');
+      navigate('/restaurants');
+    }
+  };
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -71,14 +78,7 @@ const QrcodeResto = () => {
       btoa(unescape(encodeURIComponent(svgData)));
   };
 
-  const handleQRCodeClick = (e) => {
-    if (!currentRestaurant) {
-      e.preventDefault();
-      alert('Aucun restaurant sélectionné');
-      navigate('/restaurants'); // Redirige vers la page de sélection
-    }
-  };
-
+  
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} />
@@ -116,6 +116,13 @@ const QrcodeResto = () => {
           >
             Créer un menu
           </Link>
+           <Link
+                            to={`/addcategorie/${id}`}
+                            onClick={handleQRCodeClick}
+                            className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                          >
+                            Creer une categorie
+                          </Link>
                 <Link
                   to={
                     currentRestaurant

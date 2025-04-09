@@ -17,7 +17,13 @@ export default function GererMenu({ user }) {
   const navigate = useNavigate();
   const { currentRestaurant } = useAppContext();
   const restaurantId = currentRestaurant ? currentRestaurant._id : null;
-
+  const handleQRCodeClick = (e) => {
+    if (!currentRestaurant) {
+      e.preventDefault();
+      alert('Aucun restaurant sélectionné');
+      navigate('/restaurants');
+    }
+  };
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -114,6 +120,13 @@ export default function GererMenu({ user }) {
                 <Link to={`/restaurant/${restaurantId}/menu/create`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   Créer un menu
                 </Link>
+                <Link
+                  to={`/addcategorie/${id}`}
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Creer une categorie
+                </Link>
                 <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   QR Code
                 </Link>
@@ -127,7 +140,7 @@ export default function GererMenu({ user }) {
               {restaurant.menus?.map((menu) => (
                 <div key={menu._id} className="border-b py-4 flex justify-between items-center">
                   <div>
-                    <h2 className="text-lg font-semibold">Menu {menu.day}</h2>
+                    <h2 className="text-lg font-semibold">{menu.name}</h2>
                     <div className="flex items-center gap-32">
                       <p className="text-sm text-gray-500">
                         Créé : {new Date(menu.createdAt).toLocaleString()}

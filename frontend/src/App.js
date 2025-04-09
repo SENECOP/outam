@@ -20,6 +20,7 @@ import MenuCreation from './pages/MenuCreation';
 import CategoryManager from './pages/CategoryManager';
 import RegisterRestaurant from './pages/RegisterRestaurant';
 import DailyMenu from './pages/DailyMenu';
+import DishDetail from './pages/DishDetail';
 
 function App() {
   return (
@@ -48,8 +49,7 @@ function App() {
           <Route path="/addcategorie/:id" element={<CategoryManager />} />
           <Route path="/registeresto" element={<RegisterRestaurant />} />
           <Route path="/menu/:id" element={<DailyMenu />} />
-
-
+          <Route path="/restaurant/:id/dish/:dishId" element={<DishDetail />} />
 
   
           </Routes>

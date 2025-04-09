@@ -55,7 +55,21 @@ export const AppProvider = ({ children }) => {
     setUser(null);
     setCurrentRestaurant(null);
   };
+  const [categories, setCategories] = useState([]);
 
+  // Ajouter une nouvelle catégorie
+  const addCategory = (newCategory) => {
+    setCategories((prevCategories) => [...prevCategories, newCategory]);
+  };
+
+  // Supprimer une catégorie
+  const removeCategory = (index) => {
+    setCategories((prevCategories) => {
+      const updatedCategories = [...prevCategories];
+      updatedCategories.splice(index, 1);
+      return updatedCategories;
+    });
+  };
   // Valeurs exposées par le contexte
   const contextValue = {
     user,
@@ -64,6 +78,7 @@ export const AppProvider = ({ children }) => {
     loginUser,
     logoutUser,
     setRestaurant,
+    categories, addCategory, removeCategory,
   };
 
   return (

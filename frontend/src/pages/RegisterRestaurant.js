@@ -23,7 +23,7 @@ const RegisterRestaurant = () => {
       });
 
       if (response.data.token) {
-        navigate("/loginrestaurant");
+        navigate("/");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Erreur lors de l'inscription.");

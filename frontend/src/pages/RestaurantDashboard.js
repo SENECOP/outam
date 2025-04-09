@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 export default function RestaurantDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const { id } = useParams();
+  const [activeMenu, setActiveMenu] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,7 +20,7 @@ export default function RestaurantDashboard() {
   const { currentRestaurant } = useAppContext();
   const { restaurantId } = useParams();
   const navigate = useNavigate();
-  console.log('Current Restaurant:', currentRestaurant); // Debug important
+
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -35,24 +36,23 @@ export default function RestaurantDashboard() {
     setEditForm((prev) => (prev === itemId ? null : itemId));
   };
 
-  // Fetch les plats du menu en fonction du jour
-  const fetchMenuItems = async () => {
+  // Fetch le menu actif
+  const fetchActiveMenu = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://outam.onrender.com/api/restaurant/${id}/daily-menu`
+        `http://localhost:5000/api/restaurant/${id}/menus/active`
       );
       const data = await response.json();
 
-      if (response.ok && data.dailyMenus) {
-        // Filtre les menus pour le jour actuel
-        const today = new Date()
-          .toLocaleDateString('fr-FR', { weekday: 'long' })
-          .toLowerCase();
-        const todayMenu = data.dailyMenus.filter(
-          (menu) => menu.day.toLowerCase() === today && menu.isActive
-        );
-        setMenuItems(todayMenu.length > 0 ? todayMenu[0].dishes : []);
+      if (response.ok) {
+        if (data.menu) {
+          setActiveMenu(data.menu);
+          setMenuItems(data.menu.dishes || []);
+        } else {
+          setActiveMenu(null);
+          setMenuItems([]);
+        }
       } else {
         setError(data.message || 'Erreur lors du chargement du menu');
       }
@@ -64,7 +64,7 @@ export default function RestaurantDashboard() {
   };
 
   useEffect(() => {
-    fetchMenuItems();
+    fetchActiveMenu();
   }, [id, shouldRefresh]);
 
   const handleEditSuccess = () => {
@@ -87,13 +87,15 @@ export default function RestaurantDashboard() {
       </div>
     );
   }
+
   const handleQRCodeClick = (e) => {
     if (!currentRestaurant) {
       e.preventDefault();
       alert('Aucun restaurant sélectionné');
-      navigate('/restaurants'); // Redirige vers la page de sélection
+      navigate('/restaurants');
     }
   };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} />
@@ -106,35 +108,41 @@ export default function RestaurantDashboard() {
                 <BookOpen size={24} className="text-blue-500" />
               </div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Menu du restaurant
+                {activeMenu ? activeMenu.name : 'Menu du restaurant'}
+                {activeMenu && (
+                  <span className="ml-2 text-sm font-normal text-green-600">
+                    (Menu actif)
+                  </span>
+                )}
               </h1>
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
               <div className="flex space-x-24">
                 <button className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
-                  Menu actuel
+                  Menu actif
                 </button>
                 <Link
                   to={`/gerermenu/${id}`}
                   className="text-gray-600 hover:text-gray-800 px-3 py-2"
                 >
-                  Gerer menu
+                  Gérer menu
                 </Link>
 
-<Link
-            to={`/restaurant/${currentRestaurant._id}/menu/create`}
-            onClick={handleQRCodeClick}
-            className="text-gray-600 hover:text-gray-800 px-3 py-2"
-          >
-            Créer un menu
-          </Link>
-          <Link
-to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
-      className="text-gray-600 hover:text-gray-800 px-3 py-2"
-    >
-      Creer une categorie
-    </Link>
+                <Link
+                  to={`/restaurant/${currentRestaurant?._id}/menu/create`}
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Créer un menu
+                </Link>
+                <Link
+                  to={`/addcategorie/${id}`}
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Créer une catégorie
+                </Link>
                 <Link
                   to={
                     currentRestaurant
@@ -155,24 +163,27 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
             <div className="bg-white shadow-sm rounded-lg overflow-hidden">
               {menuItems.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
-                  Aucun plat disponible pour aujourd'hui
+                  Aucun plat disponible dans le menu actif
                 </div>
               ) : (
                 menuItems.map((item) => {
-                  const itemId = item._id.$oid || item._id;
+                  const itemId = item._id?.$oid || item._id;
                   return (
                     <div key={itemId} className="border-b last:border-b-0">
                       <div className="p-4 flex items-start">
-                        
-                      <img
-                      src={item.image?.startsWith('http') ? item.image : `https://outam.onrender.com${item.image}`}
-                      alt={item.title || "Image non disponible"}
-                      className="w-16 h-16 rounded-md object-cover mr-4"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/64";
-                        e.target.onerror = null;
-                      }}
-                    />
+                        <img
+                          src={
+                            item.image?.startsWith('http')
+                              ? item.image
+                              : `http://localhost:5000${item.image}`
+                          }
+                          alt={item.title || 'Image non disponible'}
+                          className="w-16 h-16 rounded-md object-cover mr-4"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/64';
+                            e.target.onerror = null;
+                          }}
+                        />
 
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
@@ -210,7 +221,10 @@ to={`/addcategorie/${id}`}      onClick={handleQRCodeClick}
                                   <>
                                     {item.description &&
                                     item.description.split(' ').length > 20
-                                      ? `${item.description.split(' ').slice(0, 20).join(' ')}...`
+                                      ? `${item.description
+                                          .split(' ')
+                                          .slice(0, 20)
+                                          .join(' ')}...`
                                       : item.description ||
                                         'Aucune description disponible'}
                                     {item.description &&
