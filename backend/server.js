@@ -55,7 +55,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     res.set('Access-Control-Allow-Credentials', 'true');
     
     // Optimisation du cache
-    if (path.endsWith('.jpg') || path.endsWith('.png') || path.endsWith('.webp')) {
+    if (path.endsWith('.jpg') || path.endsWith('.png') || path.endsWith('.jpeg')) 
+       {
       res.set('Cache-Control', 'public, max-age=31536000, immutable');
     }
     
