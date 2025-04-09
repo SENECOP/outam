@@ -5,9 +5,12 @@ export default function Header({ toggleSidebar }) {
   const { currentRestaurant } = useAppContext(); // Récupérer les données du restaurant depuis le contexte
 
   return (
-    <header className="bg-white shadow p-4 ml-0 flex items-center">
-      {/* Bouton de menu */}
-      <button onClick={toggleSidebar} className="">
+    <header className="bg-white shadow p-4 ml-0 flex items-center relative z-20">
+      {/* Bouton de menu visible sur mobile et desktop */}
+      <button 
+        onClick={toggleSidebar} 
+        className="text-gray-600 focus:outline-none z-20 md:hidden" // Visible sur mobile et cache sur les écrans plus larges
+      >
         <Menu size={24} />
       </button>
 

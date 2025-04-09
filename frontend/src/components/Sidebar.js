@@ -17,10 +17,11 @@ export default function Sidebar({ isSidebarOpen }) {
     navigate("/loginrestaurant");
   };
   return (
-    <aside
-      className={`bg-[#f8f8f8] text-black p-4 flex flex-col space-y-4 transition-all duration-300
-      ${isSidebarOpen ? 'w-64 visible' : 'w-0 overflow-hidden invisible'} fixed md:relative h-full`}
-    >
+<aside
+  className={`bg-[#f8f8f8] text-black p-4 flex flex-col space-y-4 transition-all duration-300 
+    ${isSidebarOpen ? 'w-64 visible' : 'w-0 overflow-hidden invisible'} 
+    fixed md:relative h-full md:w-64 md:block z-10`} // Assurez-vous que la sidebar est derrière le header
+>
       {/* Contenu de la sidebar */}
       <div className="flex items-center space-x-4">
       {user?.photoDeProfil && (

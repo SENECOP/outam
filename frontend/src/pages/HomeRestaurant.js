@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import { useAppContext } from '../context/AppContext'; // Import du contexte
 import { useNavigate } from 'react-router-dom';
 
-export default function SidebarLayout() {
+export default function HomeRestauran() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState(''); // Ajout de l'état pour l'erreur
   const { user } = useAppContext(); // Récupérer l'utilisateur depuis le contexte
@@ -67,44 +67,43 @@ export default function SidebarLayout() {
         <Header toggleSidebar={toggleSidebar} />
 
         {/* Contenu principal */}
-        <div className="p-6 ml-60 mr-80">
-          <div className="flex items-center gap-4 mb-4">
-            {user?.photoDeProfil && (
-              <img
-                src={user.photoDeProfil}
-                alt="Profil"
-                className="w-12 h-12 rounded-lg"
-              />
-            )}
-            <h2 className="text-2xl font-bold">
-              Bonjour {user?.name || 'Utilisateur'} !
-            </h2>
-          </div>
+        <div className="p-6 mx-auto max-w-3xl lg:max-w-4xl xl:max-w-6xl">
+  <div className="flex items-center gap-4 mb-4">
+    {user?.photoDeProfil && (
+      <img
+        src={user.photoDeProfil}
+        alt="Profil"
+        className="w-12 h-12 rounded-lg"
+      />
+    )}
+    <h2 className="text-2xl font-bold">
+      Bonjour {user?.name || 'Utilisateur'} !
+    </h2>
+  </div>
 
-          {/* Affichage de l'erreur si elle existe */}
-          {error && (
-            <div className="text-red-500 text-lg mb-4">
-              <strong>Erreur: </strong>
-              {error}
-            </div>
-          )}
+  {error && (
+    <div className="text-red-500 text-lg mb-4">
+      <strong>Erreur: </strong>
+      {error}
+    </div>
+  )}
 
-          <div className="space-y-4">
-            {menuItems.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center space-x-4 p-8 bg-white rounded-lg shadow-md cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() => handleMenuItemClick(item.title)} // Ajout du click handler
-              >
-                {item.icon}
-                <div>
-                  <h3 className="font-semibold text-lg">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+  <div className="space-y-4">
+    {menuItems.map((item, index) => (
+      <div
+        key={index}
+        className="flex items-center space-x-4 p-6 md:p-8 bg-white rounded-lg shadow-md cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={() => handleMenuItemClick(item.title)}
+      >
+        {item.icon}
+        <div>
+          <h3 className="font-semibold text-lg">{item.title}</h3>
+          <p className="text-sm text-gray-600">{item.description}</p>
         </div>
+      </div>
+    ))}
+  </div>
+</div>
       </div>
     </div>
   );
