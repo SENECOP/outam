@@ -5,8 +5,8 @@ import { useAppContext } from '../context/AppContext';
 import { useNavigate } from "react-router-dom";
 
 const DesktopDailyMenu = () => {
-  const { id: restaurantId } = useParams();
-  const [activeMenu, setActiveMenu] = useState(null);
+  const { restaurantId } = useParams();
+    const [activeMenu, setActiveMenu] = useState(null);
   const [dishes, setDishes] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
