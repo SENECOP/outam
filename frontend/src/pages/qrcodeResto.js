@@ -32,7 +32,7 @@ const QrcodeResto = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
-  const restaurantUrl = `https://outam.onrender.com/menu/${restaurantId}`;
+  const restaurantUrl = `https://outam.netlify.app/menu/${restaurantId}`;
 
   const toggleMenuVisibility = async () => {
     try {
