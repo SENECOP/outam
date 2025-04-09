@@ -32,8 +32,13 @@ const QrcodeResto = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
-  const restaurantUrl = `https://outam.netlify.app/menu/${restaurantId}`;
-
+  const isProduction = process.env.NODE_ENV === 'production';
+  const baseUrl = isProduction
+    ? `https://outam.netlify.app/menu/${restaurantId}`  // URL de production
+    : `http://localhost:3000/menu/${restaurantId}`;   // URL locale
+  
+  const restaurantUrl = baseUrl;
+  
   const toggleMenuVisibility = async () => {
     try {
       await axios.patch(
