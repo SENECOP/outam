@@ -27,9 +27,12 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+
 app.use(cors({
-  origin: 'https://outam.netlify.app',  // Remplace par l'URL de ton frontend Netlify
+  origin: ['https://outam.netlify.app', 'http://localhost:3000'],
+  credentials: true
 }));
+
 app.use(cookieParser());
 app.use('/assets', express.static('assets'));
 app.use(express.static(path.join(__filename,"frontend/build")))
