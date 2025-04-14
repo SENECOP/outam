@@ -85,7 +85,7 @@ const DesktopDailyMenu = () => {
       </h1>
 
       {/* Info sur le menu actif */}
-      {activeMenu && (
+      {/* {activeMenu && (
         <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
           <h2 className="text-xl font-semibold text-yellow-800">{activeMenu.title}</h2>
           {activeMenu.description && (
@@ -95,7 +95,7 @@ const DesktopDailyMenu = () => {
             Menu actif • {new Date(activeMenu.createdAt).toLocaleDateString()}
           </p>
         </div>
-      )}
+      )} */}
 
       {/* Barre de recherche */}
       <div className="flex items-center gap-4 mb-6">

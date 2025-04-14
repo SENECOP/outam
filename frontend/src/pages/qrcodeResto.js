@@ -11,10 +11,14 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+
 
 const QrcodeResto = () => {
   const { restaurantId } = useParams();
   const { currentRestaurant } = useAppContext();
+  const qrOnlyRef = useRef(null);
+
   const [isMenuActive, setIsMenuActive] = useState(true);
   const qrCodeRef = useRef(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -53,11 +57,33 @@ const QrcodeResto = () => {
     }
   };
 
-  const downloadPDF = () => {
-    const pdf = new jsPDF();
-    pdf.text(`Menu - ${currentRestaurant.name}`, 105, 30, { align: 'center' });
+  const downloadPDF = async () => {
+    if (!qrOnlyRef.current) return;
+  
+    const element = qrOnlyRef.current;
+  
+    const canvas = await html2canvas(element, {
+      useCORS: true,
+      scale: 2,
+      backgroundColor: '#ffffff'
+    });
+  
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+  
+    // Taille personnalisée du QR Code dans le PDF
+    const qrWidth = 100; // en mm (ajuste ici, ex: 80, 100, 120...)
+    const qrHeight = (canvas.height * qrWidth) / canvas.width;
+  
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const x = (pageWidth - qrWidth) / 2; // centrer horizontalement
+    const y = 40; // position verticale
+  
+    pdf.addImage(imgData, 'PNG', x, y, qrWidth, qrHeight);
     pdf.save(`qrcode-${currentRestaurant.name}.pdf`);
   };
+  
+  
 
   const downloadImage = () => {
     const svg = qrCodeRef.current;
@@ -182,20 +208,21 @@ const QrcodeResto = () => {
                 </span>
               </div>
 
-              <div className="border p-4 rounded-lg bg-yellow-50 mr-[300px]">
+              <div
+  ref={qrCodeRef}
+  className="border p-4 rounded-lg bg-yellow-50 mr-[300px]"
+>
                 <div className="flex items-center justify-between">
                   {/* QR Code à gauche */}
-                  <div className="mr-6 p-15">
-                    {' '}
-                    {/* Augmenter la marge ici pour plus d'espace */}
-                    <QRCodeSVG
-                      ref={qrCodeRef}
-                      value={restaurantUrl}
-                      size={300}
-                      level="H"
-                      includeMargin={true}
-                    />
-                  </div>
+                  <div className="mr-6 p-15" ref={qrOnlyRef}>
+  <QRCodeSVG
+    value={restaurantUrl}
+    size={300}
+    level="H"
+    includeMargin={true}
+  />
+</div>
+
 
                   {/* Contenu à droite */}
                   <div className="flex flex-col items-start mr-[400px]">
