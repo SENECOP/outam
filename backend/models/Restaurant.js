@@ -33,9 +33,7 @@ const restaurantSchema = new mongoose.Schema({
         resetPasswordToken: { type: String },
         resetPasswordExpires: { type: Date }
     },
-    qrCode: { type: String },
-    qrCodeEnabled: { type: Boolean, default: true }
-
+    qrCode: { type: String }
 }, { timestamps: true });
 restaurantSchema.pre('save', async function (next) {
     if (this.isNew) { // Générer un QR Code uniquement à la création
