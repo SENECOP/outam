@@ -508,7 +508,26 @@ router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
                 ...dish,
                 price: Number(dish.price),
                 image: imageFile ? '/uploads/' + imageFile.filename : 'default-image.jpg'
-            };
+            };router.get('/restaurant/:id', async (req, res) => {
+              try {
+                const restaurantId = req.params.id;
+                const restaurant = await Restaurant.findById(restaurantId);
+            
+                if (!restaurant) {
+                  return res.status(404).json({ message: 'Restaurant non trouvé' });
+                }
+            
+                // Retourner les informations du restaurant, y compris le statut du QR code
+                res.json({
+                  qrCodeEnabled: restaurant.qrCodeEnabled, // suppose que ce champ existe dans ton modèle Restaurant
+                  name: restaurant.name,
+                  // Ajoute ici d'autres informations que tu veux retourner
+                });
+              } catch (error) {
+                console.error('Erreur lors de la récupération du restaurant:', error);
+                res.status(500).json({ message: 'Erreur interne du serveur' });
+              }
+            });
         });
 
         const newMenu = {
@@ -643,5 +662,39 @@ router.get('/:restaurantId/dishes', async (req, res) => {
       return res.status(500).json({ message: "Erreur serveur" });
     }
   });
+  router.get('/restaurant/:id', async (req, res) => {
+    try {
+      const restaurantId = req.params.id;
+      const restaurant = await Restaurant.findById(restaurantId);
   
+      if (!restaurant) {
+        return res.status(404).json({ message: 'Restaurant non trouvé' });
+      }
+  
+      // Retourner les informations du restaurant, y compris le statut du QR code
+      res.json({
+        qrCodeEnabled: restaurant.qrCodeEnabled, // suppose que ce champ existe dans ton modèle Restaurant
+        name: restaurant.name,
+        // Ajoute ici d'autres informations que tu veux retourner
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération du restaurant:', error);
+      res.status(500).json({ message: 'Erreur interne du serveur' });
+    }
+  });
+// PATCH /api/restaurant/:id/qrcode-visibility
+router.patch('/:id/qrcode-visibility', async (req, res) => {
+  const { enable } = req.body;
+  try {
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      { qrCodeEnabled: enable },
+      { new: true }
+    );
+    res.status(200).json(restaurant);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
