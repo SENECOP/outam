@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAppContext } from '../context/AppContext';
@@ -12,13 +12,14 @@ import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import html2canvas from 'html2canvas';
+import DashboardLayout from '../components/DashboardLayout';
 
 
 const QrcodeResto = () => {
   const { restaurantId } = useParams();
   const { currentRestaurant } = useAppContext();
   const qrOnlyRef = useRef(null);
-
+  const [qrBase64Url, setQrBase64Url] = useState('');
   const [isMenuActive, setIsMenuActive] = useState(true);
   const qrCodeRef = useRef(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -108,13 +109,56 @@ const QrcodeResto = () => {
       'data:image/svg+xml;base64,' +
       btoa(unescape(encodeURIComponent(svgData)));
   };
-
+  const uploadQRCodeToCloudinary = async () => {
+    const svg = qrCodeRef.current;
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+  
+    img.onload = async () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+  
+      const pngDataUrl = canvas.toDataURL('image/png');
+  
+      // Prépare FormData pour Cloudinary
+      const formData = new FormData();
+      formData.append('file', pngDataUrl);
+      formData.append('upload_preset', 'qr_upload'); // ⚠️ à remplacer
+      formData.append('cloud_name', 'dtu2zb4fu'); // ⚠️ à remplacer
+  
+      try {
+        const response = await fetch('https://api.cloudinary.com/v1_1/dtu2zb4fu/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        const data = await response.json();
+        if (data.secure_url) {
+          setQrBase64Url(data.secure_url); // ✅ URL publique de Cloudinary
+        }
+      } catch (error) {
+        console.error('Erreur d’upload vers Cloudinary', error);
+      }
+    };
+  
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+  };
+  useEffect(() => {
+    if (qrCodeRef.current) {
+      uploadQRCodeToCloudinary();
+    }
+  }, [qrCodeRef]);
+    
   
   return (
+    <DashboardLayout>
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isSidebarOpen={isSidebarOpen} />
+      {/* <Sidebar isSidebarOpen={isSidebarOpen} /> */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header toggleSidebar={toggleSidebar} />
+        {/* <Header toggleSidebar={toggleSidebar} /> */}
         <main className="flex-1 overflow-y-auto p-4 ml-1">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center mb-6">
@@ -127,7 +171,7 @@ const QrcodeResto = () => {
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
-              <div className="flex space-x-6 justify-start items-center">
+              <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
               <Link 
             to={`/restaurant/${restaurantId}`}
             className="text-gray-600 hover:text-gray-800 px-3 py-2"
@@ -147,13 +191,13 @@ const QrcodeResto = () => {
           >
             Créer un menu
           </Link>
-           <Link
-                            to={`/addcategorie/${id}`}
-                            onClick={handleQRCodeClick}
-                            className="text-gray-600 hover:text-gray-800 px-3 py-2"
-                          >
-                            Creer une categorie
-                          </Link>
+          <Link
+                  to={`/addcategorie/${restaurantId}`}
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Creer une categorie
+                </Link>
                 <Link
                   to={
                     currentRestaurant
@@ -165,120 +209,121 @@ const QrcodeResto = () => {
                 >
                   QR Code
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                <Link className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   Historique
-                </button>
+                </Link>
               </div>
             </nav>
 
             <div className="bg-white shadow-sm rounded-lg mb-6 p-4">
-              <h1 className="text-xl font-bold mb-4">Créer une catégorie</h1>
-              <p className="mb-4">
-                Dans cet espace, vous pouvez créer votre QR Code et l'afficher
-                dans votre restaurant ou le partager à vos clients.
-              </p>
+  <h1 className="text-xl font-bold mb-4">QRcode du restaurant</h1>
+  <p className="mb-4">
+    Dans cet espace, vous pouvez créer votre QR Code et l'afficher
+    dans votre restaurant ou le partager à vos clients.
+  </p>
 
-              <label className="block mb-2">Votre URL</label>
-              <input
-                type="text"
-                className="w-full border px-3 py-2 rounded-lg  mr-[500px]"
-                value={restaurantUrl}
-                readOnly
-              />
-
-              <div className="flex items-center mb-4">
-                <span className="mr-2">Statut de visibilité de votre Menu</span>
-                <span className="text-sm text-gray-500 mr-2">
-                  {isMenuActive ? 'Actif' : 'Désactivé'}
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer ml-4">
-                  <input
-                    type="checkbox"
-                    checked={isMenuActive}
-                    onChange={toggleMenuVisibility}
-                    className="sr-only peer"
-                    disabled={isMenuDisabled} // Désactive le switch si isMenuDisabled est vrai
-                  />
-                  <div
-                    className={`w-11 h-6 ${isMenuDisabled ? 'bg-gray-400' : 'bg-gray-300'} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}
-                  ></div>
-                </label>
-                <span className="text-sm text-gray-500 ml-2">
-                  {isMenuActive ? 'Désactivé' : 'Actif'}
-                </span>
-              </div>
-
-              <div
-  ref={qrCodeRef}
-  className="border p-4 rounded-lg bg-yellow-50 mr-[300px]"
->
-                <div className="flex items-center justify-between">
-                  {/* QR Code à gauche */}
-                  <div className="mr-6 p-15" ref={qrOnlyRef}>
-  <QRCodeSVG
+  <label className="block mb-2">Votre URL</label>
+  <input
+    type="text"
+    className="w-full border px-3 py-2 rounded-lg"
     value={restaurantUrl}
-    size={300}
-    level="H"
-    includeMargin={true}
+    readOnly
   />
+
+  <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-2 sm:gap-0">
+    <span className="mr-2">Statut de visibilité de votre Menu</span>
+    <span className="text-sm text-gray-500 mr-2">
+      {isMenuActive ? 'Actif' : 'Désactivé'}
+    </span>
+    <label className="relative inline-flex items-center cursor-pointer sm:ml-4">
+      <input
+        type="checkbox"
+        checked={isMenuActive}
+        onChange={toggleMenuVisibility}
+        className="sr-only peer"
+        disabled={isMenuDisabled}
+      />
+      <div
+        className={`w-11 h-6 ${isMenuDisabled ? 'bg-gray-400' : 'bg-gray-300'} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}
+      ></div>
+    </label>
+    <span className="text-sm text-gray-500 sm:ml-2">
+      {isMenuActive ? 'Désactivé' : 'Actif'}
+    </span>
+  </div>
+
+  <div
+    ref={qrCodeRef}
+    className="border p-4 rounded-lg bg-yellow-50 lg:mr-[300px]"
+  >
+    <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+      {/* QR Code - centré sur mobile, à gauche sur desktop */}
+      <div className="p-4 lg:mr-6" ref={qrOnlyRef}>
+        <QRCodeSVG
+          value={restaurantUrl}
+          size={window.innerWidth < 1024 ? 200 : 300}
+          level="H"
+          includeMargin={true}
+        />
+      </div>
+
+      {/* Contenu - empilé sur mobile, à droite sur desktop */}
+      <div className="flex flex-col items-center lg:items-start w-full lg:w-auto">
+        <h2 className="font-medium mb-2 text-center lg:text-left">Partager votre QR Code</h2>
+        <p className="text-sm mb-4 text-center lg:text-left">
+          Vous pouvez télécharger ce QR Code et l'afficher dans votre restaurant.
+        </p>
+        
+        {/* Boutons de téléchargement */}
+        <div className="flex flex-col sm:flex-row lg:flex-col gap-2 mb-4 w-full">
+          <button
+            onClick={downloadPDF}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg w-full sm:w-auto lg:w-full"
+          >
+            Télécharger PDF
+          </button>
+          <button
+            onClick={downloadImage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg w-full sm:w-auto lg:w-full"
+          >
+            Télécharger image
+          </button>
+        </div>
+        
+        {/* Icônes de partage */}
+        <div className="flex justify-center lg:justify-start gap-4 w-full">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Voici notre QR Code menu : ${qrBase64Url}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-green-500 text-4xl"
+          >
+            <FaWhatsapp />
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(qrBase64Url)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 text-4xl"
+          >
+            <FaFacebook />
+          </a>
+          <a
+            href={`mailto:?subject=QR Code du menu&body=Voici le QR Code de notre menu : ${qrBase64Url}`}
+            className="text-red-500 text-4xl"
+          >
+            <FaEnvelope />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-
-                  {/* Contenu à droite */}
-                  <div className="flex flex-col items-start mr-[400px]">
-                    <h2 className="font-medium mb-2">Partager votre QR Code</h2>
-                    <p className="text-sm mb-4">Vous pouvez télécharger ce </p>
-                    <p className="text-sm mb-4">
-                      QR Code et l'afficher dans{' '}
-                    </p>{' '}
-                    <p className="text-sm mb-4">votre restaurant.</p>
-                    {/* Boutons de téléchargement */}
-                    <div className="flex flex-col mb-4">
-                      <button
-                        onClick={downloadPDF}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg mb-2"
-                      >
-                        Télécharger PDF
-                      </button>
-                      <button
-                        onClick={downloadImage}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                      >
-                        Télécharger image
-                      </button>
-                    </div>
-                    <div className="flex space-x-4">
-                      <a
-                        href={`https://wa.me/?text=${encodeURIComponent(restaurantUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-green-500 text-4xl"
-                      >
-                        <FaWhatsapp />
-                      </a>
-                      <a
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(restaurantUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 text-4xl"
-                      >
-                        <FaFacebook />
-                      </a>
-                      <a
-                        href={`mailto:?subject=Menu&body=${encodeURIComponent(restaurantUrl)}`}
-                        className="text-red-500 text-4xl"
-                      >
-                        <FaEnvelope />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </main>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 

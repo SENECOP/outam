@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import EditMenuItemForm from "../components/EditMenuItemForm";
 import { useAppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout";
 
 export default function CategoryManager() {
   
@@ -35,10 +36,11 @@ export default function CategoryManager() {
   };
 
   return (
+    <DashboardLayout>
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isSidebarOpen={true} />
+      {/* <Sidebar isSidebarOpen={true} /> */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header toggleSidebar={() => {}} />
+        {/* <Header toggleSidebar={() => {}} /> */}
         <main className="flex-1 overflow-y-auto p-4 ml-1">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center mb-6">
@@ -49,7 +51,7 @@ export default function CategoryManager() {
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
-              <div className="flex space-x-24">
+              <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
               <Link 
                 to={`/restaurant/${restaurantId}`}
                 className="text-gray-600 hover:text-gray-800 px-3 py-2"
@@ -84,14 +86,14 @@ export default function CategoryManager() {
                 >
                   QR Code
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                {/* <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   Historique
-                </button>
+                </button> */}
               </div>
             </nav>
             <div className="bg-white shadow-sm rounded-lg overflow-hidden">
 
-              <div className="bg-white shadow-sm rounded-lg mb-6 p-4 mr-[500px]">
+              <div className="bg-white shadow-sm rounded-lg mb-6 p-4">
                 <h2 className="text-xl font-semibold mb-2">Créer une catégorie</h2>
                 <p className="text-gray-600 mb-4">
                   Dans cet espace, vous pouvez créer vos catégories de Menu
@@ -157,5 +159,6 @@ export default function CategoryManager() {
         </main>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

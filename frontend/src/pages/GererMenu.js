@@ -107,7 +107,7 @@ export default function GererMenu({ user }) {
             </div>
 
             <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
-              <div className="flex space-x-6">
+              <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
                 <Link 
                   to={`/restaurant/${restaurantId}`}
                   className="text-gray-600 hover:text-gray-800 px-3 py-2"
@@ -130,53 +130,50 @@ export default function GererMenu({ user }) {
                 <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   QR Code
                 </Link>
-                <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                  Historique
-                </button>
+                 <Link className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                                  Historique
+                                </Link>
               </div>
             </nav>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              {restaurant.menus?.map((menu) => (
-                <div key={menu._id} className="border-b py-4 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-lg font-semibold">{menu.name}</h2>
-                    <div className="flex items-center gap-32">
-                      <p className="text-sm text-gray-500">
-                        Créé : {new Date(menu.createdAt).toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Catégories :{' '}
-                        {
-                          [...new Set(menu.dishes.map((dish) => dish.category))]
-                            .length
-                        }
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Plats : {menu.dishes?.length || 0}
-                      </p>
-                    </div>
-                  </div>
+            <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
+  {restaurant.menus?.map((menu) => (
+    <div key={menu._id} className="border-b py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="w-full">
+        <h2 className="text-lg font-semibold">{menu.name}</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8 md:gap-32 mt-2">
+          <p className="text-sm text-gray-500">
+            Créé : {new Date(menu.createdAt).toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-500">
+            Catégories :{' '}
+            {[...new Set(menu.dishes.map((dish) => dish.category))].length}
+          </p>
+          <p className="text-sm text-gray-500">
+            Plats : {menu.dishes?.length || 0}
+          </p>
+        </div>
+      </div>
 
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-500 mr-2">Activé</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={menu.isActive}
-                        onChange={() => toggleMenuStatus(menu._id, menu.isActive)}
-                        disabled={isToggling}
-                        className="sr-only peer"
-                      />
-                      <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer ${menu.isActive ? 'peer-checked:bg-green-500' : ''} ${isToggling ? 'opacity-50 cursor-not-allowed' : ''} peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
-                    </label>
-                    <span className="text-sm text-gray-500 ml-2">
-                      Désactivé
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <div className="flex items-center w-full md:w-auto justify-end md:justify-normal">
+        <span className="text-sm text-gray-500 mr-2">Activé</span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={menu.isActive}
+            onChange={() => toggleMenuStatus(menu._id, menu.isActive)}
+            disabled={isToggling}
+            className="sr-only peer"
+          />
+          <div className={`w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer ${menu.isActive ? 'peer-checked:bg-green-500' : ''} ${isToggling ? 'opacity-50 cursor-not-allowed' : ''} peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}></div>
+        </label>
+        <span className="text-sm text-gray-500 ml-2">
+          Désactivé
+        </span>
+      </div>
+    </div>
+  ))}
+</div>
           </div>
         </main>
       </div>
