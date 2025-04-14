@@ -73,7 +73,7 @@ const RegisterRestaurant = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="w-full bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600"
         >
           S'inscrire
         </button>

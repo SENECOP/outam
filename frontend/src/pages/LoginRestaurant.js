@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { Link } from 'react-router-dom'; // Assure-toi d'importer Link de react-router-dom
+
 
 const LoginRestaurant = () => {
   const [email, setEmail] = useState('');
@@ -15,46 +17,59 @@ const LoginRestaurant = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
+  
     try {
+      console.log('Tentative de connexion avec :', { email, motDePasse });
+  
       // 1. Authentification
       const authResponse = await axios.post(
         'https://outam.onrender.com/api/restaurant/login',
         { email, motDePasse }
       );
-
+  
+      console.log('Réponse Authentification:', authResponse.data);
+  
       const token = authResponse.data.token;
-
+  
       // 2. Récupération des données utilisateur
       const userResponse = await axios.get(
         'https://outam.onrender.com/api/restaurant/commercant/me',
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
+      console.log('Données utilisateur récupérées:', userResponse.data);
+  
       // 3. Récupération des données du restaurant si elles ne sont pas incluses
       let restaurantData = {};
       if (userResponse.data.restaurantId) {
+        console.log('ID du restaurant:', userResponse.data.restaurantId);
+  
         const restaurantResponse = await axios.get(
           `https://outam.onrender.com/api/restaurant/${userResponse.data.restaurantId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+  
+        console.log('Données du restaurant récupérées:', restaurantResponse.data);
         restaurantData = restaurantResponse.data;
       }
-
+  
       // 4. Préparation des données pour le contexte
       const userData = {
         ...userResponse.data,
         token,
-        restaurant: restaurantData, // Ajout des données complètes du restaurant
+        restaurant: restaurantData,
       };
-
+  
+      console.log('Données combinées à stocker dans le contexte:', userData);
+  
       // 5. Mise à jour du contexte
       loginUser(userData);
-
+  
       // 6. Redirection
       navigate('/homer');
     } catch (error) {
-      console.error('Erreur de connexion:', error);
+      console.error('Erreur lors du processus de connexion:', error);
+  
       setError(
         error.response?.data?.message ||
           'Erreur de connexion. Veuillez réessayer.'
@@ -63,6 +78,7 @@ const LoginRestaurant = () => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100" style={{ backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
@@ -89,7 +105,7 @@ const LoginRestaurant = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
@@ -102,7 +118,7 @@ const LoginRestaurant = () => {
               type="password"
               value={motDePasse}
               onChange={(e) => setMotDePasse(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
@@ -113,12 +129,21 @@ const LoginRestaurant = () => {
             className={`w-full py-2 rounded-lg focus:outline-none ${
               isLoading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-yellow-500 text-white hover:bg-yellow-600'
             }`}
           >
             {isLoading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
         </form>
+        <div className="mt-4 text-center">
+  <p className="text-sm text-gray-600">
+    Vous n'avez pas de compte ?{' '}
+    <Link to="/registeresto" className="text-yellow-600 hover:underline font-medium">
+      Créer un compte
+    </Link>
+  </p>
+</div>
+
       </div>
     </div>
   );

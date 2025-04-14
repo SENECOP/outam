@@ -21,6 +21,7 @@
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-router-dom": "^7.4.0",
     "react-scripts": "^5.0.1",
+    "react-toastify": "^11.0.5",
     "styled-components": "^6.1.16",
     "web-vitals": "^2.1.4"
   },

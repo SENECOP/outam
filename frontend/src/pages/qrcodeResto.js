@@ -16,6 +16,8 @@ import DashboardLayout from '../components/DashboardLayout';
 
 
 const QrcodeResto = () => {
+  const [qrCodeEnabled, setQrCodeEnabled] = useState(true);
+
   const { restaurantId } = useParams();
   const { currentRestaurant } = useAppContext();
   const qrOnlyRef = useRef(null);
@@ -151,7 +153,30 @@ const QrcodeResto = () => {
       uploadQRCodeToCloudinary();
     }
   }, [qrCodeRef]);
-    
+  useEffect(() => {
+    const fetchQrStatus = async () => {
+      try {
+        const res = await axios.get(`https://outam.onrender.com/api/restaurant/restaurant${restaurantId}`);
+        setQrCodeEnabled(res.data.qrCodeEnabled);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du statut du QR code :", error);
+      }
+    };
+  
+    fetchQrStatus();
+  }, [restaurantId]);
+  
+  const toggleQRCodeVisibility = async () => {
+    try {
+      const updatedValue = !qrCodeEnabled;
+      await axios.patch(`https://outam.onrender.com/api/restaurant/${restaurantId}/qrcode-visibility`, {
+        enable: updatedValue,
+      });
+      setQrCodeEnabled(updatedValue);
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour de la visibilité du QR Code :", error);
+    }
+  };
   
   return (
     <DashboardLayout>
@@ -230,27 +255,25 @@ const QrcodeResto = () => {
     readOnly
   />
 
-  <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-2 sm:gap-0">
-    <span className="mr-2">Statut de visibilité de votre Menu</span>
-    <span className="text-sm text-gray-500 mr-2">
-      {isMenuActive ? 'Actif' : 'Désactivé'}
-    </span>
-    <label className="relative inline-flex items-center cursor-pointer sm:ml-4">
-      <input
-        type="checkbox"
-        checked={isMenuActive}
-        onChange={toggleMenuVisibility}
-        className="sr-only peer"
-        disabled={isMenuDisabled}
-      />
-      <div
-        className={`w-11 h-6 ${isMenuDisabled ? 'bg-gray-400' : 'bg-gray-300'} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all`}
-      ></div>
-    </label>
-    <span className="text-sm text-gray-500 sm:ml-2">
-      {isMenuActive ? 'Désactivé' : 'Actif'}
-    </span>
-  </div>
+<div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-2 sm:gap-0">
+  <span className="mr-2">Visibilité du QR Code</span>
+  <span className="text-sm text-gray-500 mr-2">
+    {qrCodeEnabled ? 'Visible' : 'Masqué'}
+  </span>
+  <label className="relative inline-flex items-center cursor-pointer sm:ml-4">
+    <input
+      type="checkbox"
+      checked={qrCodeEnabled}
+      onChange={toggleQRCodeVisibility}
+      className="sr-only peer"
+    />
+    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-500 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+  </label>
+  <span className="text-sm text-gray-500 sm:ml-2">
+    {qrCodeEnabled ? 'Masquer' : 'Afficher'}
+  </span>
+</div>
+
 
   <div
     ref={qrCodeRef}
@@ -259,13 +282,21 @@ const QrcodeResto = () => {
     <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
       {/* QR Code - centré sur mobile, à gauche sur desktop */}
       <div className="p-4 lg:mr-6" ref={qrOnlyRef}>
-        <QRCodeSVG
-          value={restaurantUrl}
-          size={window.innerWidth < 1024 ? 200 : 300}
-          level="H"
-          includeMargin={true}
-        />
-      </div>
+      {isMenuActive && qrCodeEnabled ? (
+  <QRCodeSVG
+    value={restaurantUrl}
+    size={window.innerWidth < 1024 ? 200 : 300}
+    level="H"
+    includeMargin={true}
+  />
+) : (
+  <div className="text-gray-500 text-center">
+    {qrCodeEnabled ? "Le menu est désactivé." : "Le QR Code est masqué."}
+  </div>
+)}
+
+</div>
+
 
       {/* Contenu - empilé sur mobile, à droite sur desktop */}
       <div className="flex flex-col items-center lg:items-start w-full lg:w-auto">
