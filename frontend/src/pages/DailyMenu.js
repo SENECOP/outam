@@ -15,25 +15,22 @@ const DesktopDailyMenu = () => {
   const navigate = useNavigate();
 
   const { currentRestaurant } = useAppContext();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
   
-        // 1. Récupérer les infos du restaurant
         const restaurantRes = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}`);
         const restaurant = restaurantRes.data;
   
-        // Si le QR Code est masqué ou le menu désactivé
+        // ✅ Vérifie si le menu est visible
         if (!restaurant.qrCodeEnabled || !restaurant.isActive) {
           setError("Ce menu n'est pas disponible pour le moment.");
           return;
         }
   
-        // 2. Récupérer le menu actif
-        const response = await axios.get(
+        const menuRes = await axios.get(
           `https://outam.onrender.com/api/restaurant/${restaurantId}/menus/active`,
           {
             timeout: 5000,
@@ -41,20 +38,28 @@ const DesktopDailyMenu = () => {
           }
         );
   
-        if (response.data?.menu) {
-          setActiveMenu(response.data.menu);
-          setDishes(response.data.menu.dishes || []);
+        if (menuRes.data?.menu) {
+          setActiveMenu(menuRes.data.menu);
+          setDishes(menuRes.data.menu.dishes || []);
         } else {
-          setError(response.data?.message || "Aucun menu actif disponible");
+          setError(menuRes.data?.message || "Aucun menu actif disponible.");
         }
-      } catch (error) {
-        setError(error.response?.data?.message || "Erreur de chargement des données");
+  
+      } catch (err) {
+        setError("Impossible de charger les données du menu.");
       } finally {
         setLoading(false);
       }
     };
   
-    if (restaurantId) fetchData();
+    fetchData();
+  
+    // ✅ Recharger automatiquement après activation (ex: toutes les 10 secondes)
+    const interval = setInterval(() => {
+      fetchData();
+    }, 10000); // 10 secondes
+  
+    return () => clearInterval(interval);
   }, [restaurantId]);
   
 
