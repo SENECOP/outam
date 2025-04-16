@@ -1,0 +1,4 @@
+[build]
+  base = "frontend"             # Spécifie que le répertoire frontend contient le code source
+  command = "CI=false npm run build"  # La commande de build dans le dossier frontend
+  publish = "frontend/build"    # Le dossier où se trouvent les fichiers générés après la construction
