@@ -17,11 +17,22 @@ const DesktopDailyMenu = () => {
   const { currentRestaurant } = useAppContext();
 
   useEffect(() => {
-    const fetchActiveMenu = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-
+  
+        // 1. Récupérer les infos du restaurant
+        const restaurantRes = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}`);
+        const restaurant = restaurantRes.data;
+  
+        // Si le QR Code est masqué ou le menu désactivé
+        if (!restaurant.qrCodeEnabled || !restaurant.isActive) {
+          setError("Ce menu n'est pas disponible pour le moment.");
+          return;
+        }
+  
+        // 2. Récupérer le menu actif
         const response = await axios.get(
           `https://outam.onrender.com/api/restaurant/${restaurantId}/menus/active`,
           {
@@ -29,24 +40,23 @@ const DesktopDailyMenu = () => {
             headers: { "Cache-Control": "no-cache" },
           }
         );
-
+  
         if (response.data?.menu) {
           setActiveMenu(response.data.menu);
           setDishes(response.data.menu.dishes || []);
         } else {
-          setActiveMenu(null);
-          setDishes([]);
           setError(response.data?.message || "Aucun menu actif disponible");
         }
       } catch (error) {
-        setError(error.response?.data?.message || "Erreur de chargement du menu actif");
+        setError(error.response?.data?.message || "Erreur de chargement des données");
       } finally {
         setLoading(false);
       }
     };
-
-    if (restaurantId) fetchActiveMenu();
+  
+    if (restaurantId) fetchData();
   }, [restaurantId]);
+  
 
   const categories = [
     "Tous",
