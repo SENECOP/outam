@@ -537,32 +537,27 @@ router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
     }
 });
 router.get('/:id/menus/active', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const restaurant = await Restaurant.findById(id);
-    if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant non trouvé' });
+    const { id } = req.params;
+  
+    try {
+      const restaurant = await Restaurant.findById(id);
+      if (!restaurant) {
+        return res.status(404).json({ message: 'Restaurant non trouvé' });
+      }
+  
+      // Trouver le premier menu actif
+      const activeMenu = restaurant.menus.find(menu => menu.isActive);
+  
+      if (!activeMenu) {
+        return res.status(200).json({ message: 'Aucun menu actif trouvé' });
+      }
+  
+      res.status(200).json({ menu: activeMenu });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
-
-    // ✅ Vérification QR code activé
-    if (!restaurant.qrCodeEnabled) {
-      return res.status(403).json({ message: 'Ce menu est désactivé par le restaurant.' });
-    }
-
-    const activeMenu = restaurant.menus.find(menu => menu.isActive);
-
-    if (!activeMenu) {
-      return res.status(200).json({ message: 'Aucun menu actif trouvé' });
-    }
-
-    res.status(200).json({ menu: activeMenu });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erreur serveur', error: error.message });
-  }
-});
-
+  });
 
 router.post('/:restaurantId/menus/:menuId/dishes', upload.single('image'), validateMenuItem, async (req, res) => {
     const { restaurantId, menuId } = req.params;
@@ -648,41 +643,20 @@ router.get('/:restaurantId/dishes', async (req, res) => {
       return res.status(500).json({ message: "Erreur serveur" });
     }
   });
-// GET /api/restaurant/:id/qrcode-status
-router.get('/:id/qrcode-status', async (req, res) => {
-  const { id } = req.params;
-
+// Dans votre controller restaurant
+router.get('/:restaurantId', async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(id).select('qrCodeEnabled');
+    const { restaurantId } = req.params;
+    const restaurant = await Restaurant.findById(restaurantId).select('name qrCodeEnabled');
+
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant non trouvé' });
     }
 
-    res.json({ qrCodeEnabled: restaurant.qrCodeEnabled });
+    res.json(restaurant);
   } catch (error) {
-    console.error('Erreur lors de la récupération du statut QR Code :', error);
+    console.error("Erreur récupération restaurant :", error);
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
-// PATCH /api/restaurant/:id/qrcode-status
-router.patch('/:id/qrcode-status', async (req, res) => {
-  const { id } = req.params;
-  const { qrCodeEnabled } = req.body;
-
-  try {
-    const restaurant = await Restaurant.findById(id);
-    if (!restaurant) {
-      return res.status(404).json({ message: 'Restaurant non trouvé' });
-    }
-
-    restaurant.qrCodeEnabled = qrCodeEnabled;
-    await restaurant.save();
-
-    res.json({ message: 'Statut du QR Code mis à jour', qrCodeEnabled: restaurant.qrCodeEnabled });
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut QR Code :", error);
-    res.status(500).json({ message: 'Erreur serveur' });
-  }
-});
-
 module.exports = router;
