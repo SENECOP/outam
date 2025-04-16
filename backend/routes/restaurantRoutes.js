@@ -644,21 +644,20 @@ router.get('/:restaurantId/dishes', async (req, res) => {
     }
   });
 // Dans votre controller restaurant
-router.get('/:restaurantId', async (req, res) => {
+router.get('/:idrestaurantId', async (req, res) => {
   try {
-    const { restaurantId } = req.params;
-    const restaurant = await Restaurant.findById(restaurantId).select('name qrCodeEnabled');
+    const restaurant = await Restaurant.findById(req.params.id).select('name qrCodeEnabled isMenuActive');
 
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant non trouvé' });
     }
 
-    res.json(restaurant);
+    res.status(200).json(restaurant);
   } catch (error) {
-    console.error("Erreur récupération restaurant :", error);
-    res.status(500).json({ message: 'Erreur serveur' });
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
   }
 });
+
 router.patch('/:restaurantId/qrcode-visibility', async (req, res) => {
   try {
     const { restaurantId } = req.params;
