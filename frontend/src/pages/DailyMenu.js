@@ -25,7 +25,8 @@ const DesktopDailyMenu = () => {
         const restaurant = restaurantRes.data;
   
         // ✅ Vérifie si le menu est visible
-        if (!restaurant.qrCodeEnabled || !restaurant.isActive) {
+        if (!restaurant.qrCodeEnabled || !restaurant.isMenuActive) {
+
           setError("Ce menu n'est pas disponible pour le moment.");
           return;
         }
