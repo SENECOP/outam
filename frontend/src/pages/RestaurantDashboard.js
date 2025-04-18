@@ -178,7 +178,7 @@ export default function RestaurantDashboard() {
                           src={
                             item.image?.startsWith('http')
                               ? item.image
-                              : `http://localhost:5000${item.image}`
+                              : `https://outam.onrender.com${item.image}`
                           }
                           alt={item.title || 'Image non disponible'}
                           className="w-16 h-16 rounded-md object-cover mr-4"

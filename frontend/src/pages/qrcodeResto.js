@@ -28,6 +28,7 @@ const QrcodeResto = () => {
   const navigate = useNavigate();
   const [isMenuDisabled, setIsMenuDisabled] = useState(false); // ou vrai selon votre condition
   const { id } = useParams();
+ 
   const handleQRCodeClick = (e) => {
     if (!currentRestaurant) {
       e.preventDefault();
@@ -143,11 +144,15 @@ const QrcodeResto = () => {
   
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
-  useEffect(() => {
-    if (qrCodeRef.current) {
-      uploadQRCodeToCloudinary();
-    }
-  }, [qrCodeRef]);
+
+useEffect(() => {
+  if (qrCodeRef.current && qrCodeEnabled && isMenuActive) {
+    uploadQRCodeToCloudinary();
+  }
+}, [qrCodeEnabled, isMenuActive]);
+
+
+
   useEffect(() => {
     const fetchQrStatus = async () => {
       try {
@@ -172,6 +177,45 @@ const QrcodeResto = () => {
       console.error("Erreur lors de la mise à jour de la visibilité du QR Code :", error);
     }
   };
+  const hasUploadedRef = useRef(false);
+
+  useEffect(() => {
+    const uploadImageToCloudinary = async () => {
+      if (!qrOnlyRef.current || hasUploadedRef.current) return;
+  
+      const canvas = await html2canvas(qrOnlyRef.current, {
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        scale: 2,
+      });
+  
+      const pngDataUrl = canvas.toDataURL('image/png');
+  
+      const formData = new FormData();
+      formData.append('file', pngDataUrl);
+      formData.append('upload_preset', 'qr_upload'); // ⚠️ Ton preset Cloudinary
+      formData.append('cloud_name', 'dtu2zb4fu'); // ⚠️ Ton cloud name
+  
+      try {
+        const response = await fetch('https://api.cloudinary.com/v1_1/dtu2zb4fu/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        const data = await response.json();
+        if (data.secure_url) {
+          setQrBase64Url(data.secure_url); // ← L’image hébergée à partager
+          hasUploadedRef.current = true;
+        }
+      } catch (error) {
+        console.error('Erreur d’upload vers Cloudinary', error);
+      }
+    };
+  
+    if (qrCodeEnabled && isMenuActive) {
+      uploadImageToCloudinary();
+    }
+  }, [qrCodeEnabled, isMenuActive, restaurantUrl]);
   
   return (
     <DashboardLayout>
@@ -317,30 +361,33 @@ const QrcodeResto = () => {
         </div>
         
         {/* Icônes de partage */}
-        <div className="flex justify-center lg:justify-start gap-4 w-full">
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(`Voici notre QR Code menu : ${qrBase64Url}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-green-500 text-4xl"
-          >
-            <FaWhatsapp />
-          </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(qrBase64Url)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 text-4xl"
-          >
-            <FaFacebook />
-          </a>
-          <a
-            href={`mailto:?subject=QR Code du menu&body=Voici le QR Code de notre menu : ${qrBase64Url}`}
-            className="text-red-500 text-4xl"
-          >
-            <FaEnvelope />
-          </a>
-        </div>
+        {qrBase64Url && (
+  <div className="flex justify-center lg:justify-start gap-4 w-full">
+    <a
+      href={`https://wa.me/?text=${encodeURIComponent(`Scannez ce QR Code pour accéder à notre menu : ${qrBase64Url}`)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-green-500 text-4xl"
+    >
+      <FaWhatsapp />
+    </a>
+    <a
+      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(qrBase64Url)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-500 text-4xl"
+    >
+      <FaFacebook />
+    </a>
+    <a
+      href={`mailto:?subject=QR Code de notre menu&body=Voici le QR Code de notre menu : ${qrBase64Url}`}
+      className="text-red-500 text-4xl"
+    >
+      <FaEnvelope />
+    </a>
+  </div>
+)}
+
       </div>
     </div>
   </div>

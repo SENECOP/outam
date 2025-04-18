@@ -114,7 +114,7 @@ const DesktopDailyMenu = () => {
       )} */}
 
       {/* Barre de recherche */}
-      <div className="flex items-center gap-4 mb-6">
+      {/* <div className="flex items-center gap-4 mb-6">
         <input
           type="text"
           placeholder="Rechercher un plat..."
@@ -122,7 +122,7 @@ const DesktopDailyMenu = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </div>
+      </div> */}
 
       {/* Catégories */}
       <div className="flex flex-wrap gap-2 mb-6">
