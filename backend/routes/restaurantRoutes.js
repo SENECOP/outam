@@ -712,4 +712,24 @@ router.patch('/:restaurantId/menu-status', async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
+// ✅ Route pour récupérer tous les menus qui ont été activés au moins une fois
+router.get('/:restaurantId/menus/actives-une-fois', async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const restaurant = await Restaurant.findById(restaurantId);
+
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant non trouvé" });
+    }
+
+    // Tous les menus qui ont été activés au moins une fois (peu importe leur état actuel)
+    const menusActivésUneFois = restaurant.menus.filter(menu => menu.isActive === true || menu.updatedAt !== menu.createdAt);
+
+    res.status(200).json(menusActivésUneFois);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des menus activés une fois :", error);
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+});
+
 module.exports = router;

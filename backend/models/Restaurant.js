@@ -38,7 +38,9 @@ const restaurantSchema = new mongoose.Schema({
         type: Boolean,
         default: true // par défaut, les QR codes sont actifs
       },
-    isMenuActive: { type: Boolean, default: true }
+    isMenuActive: { type: Boolean, default: true },
+    logo: { type: String, default: 'default-logo.jpg' },
+
 
 }, { timestamps: true });
 restaurantSchema.pre('save', async function (next) {
