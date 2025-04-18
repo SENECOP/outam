@@ -17,25 +17,34 @@ export default function HomeRestauran() {
   const handleMenuItemClick = (title) => {
     if (!user?.restaurantId) {
       const errMsg = 'ID du restaurant non disponible';
-      setError(errMsg); // Affichage de l'erreur dans l'interface utilisateur
+      setError(errMsg);
       console.error(errMsg);
       return;
     }
-
-    console.log('Restaurant ID: ', user.restaurantId); // Vérification de l'ID du restaurant
-
-    // Vérifier si l'élément est "Menu du restaurant" et rediriger
+  
+    console.log('Restaurant ID: ', user.restaurantId);
+  
     if (title === 'Menu du restaurant') {
       try {
-        // Rediriger vers la page de menu du restaurant en utilisant l'ID dynamique
         navigate(`/restaurant/${user.restaurantId}`);
       } catch (err) {
-        const errorMsg = 'Erreur de redirection';
-        setError(errorMsg); // Affichage de l'erreur dans l'interface utilisateur
+        const errorMsg = 'Erreur de redirection vers le menu';
+        setError(errorMsg);
+        console.error(errorMsg, err);
+      }
+    }
+  
+    if (title === 'Compte et profils') {
+      try {
+        navigate(`/profil/${user.restaurantId}`);
+      } catch (err) {
+        const errorMsg = 'Erreur de redirection vers le profil';
+        setError(errorMsg);
         console.error(errorMsg, err);
       }
     }
   };
+  
 
   const menuItems = [
     {

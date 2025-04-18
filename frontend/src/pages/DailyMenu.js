@@ -96,9 +96,36 @@ const DesktopDailyMenu = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* En-tête */}
-      <h1 className="text-2xl font-bold mb-6 text-center">
-        Bienvenue au {currentRestaurant?.name || "Restaurant"}
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+  {/* Logo du restaurant à gauche */}
+  {currentRestaurant?.logo && (
+    <img
+      src={currentRestaurant.logo}
+      alt="Logo du restaurant"
+      className="h-12 w-12 object-cover rounded-full shadow"
+      onError={(e) => {
+        e.target.src = "/images/default-logo.jpg"; // Logo fallback si l'image échoue
+      }}
+    />
+  )}
+
+  {/* Titre de bienvenue */}
+  <h1 className="text-2xl font-bold text-center">
+    Bienvenue au restaurant {currentRestaurant?.name || "Restaurant"}
+  </h1>
+
+  {/* Logo du projet à droite */}
+  <img
+    src="https://outam.onrender.com/assets/logo.png" // Remplace cette URL par le chemin vers ton logo de projet
+    alt="Logo du projet"
+    className="h-12 w-12 object-cover rounded-full shadow"
+    onError={(e) => {
+      e.target.src = "/images/default-project-logo.jpg"; // Logo fallback si l'image échoue
+    }}
+  />
+</div>
+
+
 
       {/* Info sur le menu actif */}
       {/* {activeMenu && (
@@ -157,7 +184,7 @@ const DesktopDailyMenu = () => {
                     src={
                       dish.image.startsWith("http")
                         ? dish.image
-                        : `http://localhost:5000${dish.image}`
+                        : `https://outam.onrender.com${dish.image}`
                     }
                     alt={dish.title}
                     className="absolute top-0 left-0 w-full h-full object-cover"
@@ -174,14 +201,18 @@ const DesktopDailyMenu = () => {
               </div>
               
               <div className="p-3 space-y-1">
-                <h3 className="text-base font-semibold truncate">
-                  {dish.title || "Sans titre"}
-                </h3>
-                <p className="text-yellow-600 text-sm font-bold">
-                  {dish.price} Fcfa
-                </p>
-                <p className="text-xs text-gray-500">{dish.category}</p>
-              </div>
+  <h3 className="text-base font-semibold truncate">
+    {dish.title || "Sans titre"}
+  </h3>
+  {dish.description && (
+    <p className="text-sm text-gray-600 line-clamp-2">{dish.description}</p>
+  )}
+  <p className="text-yellow-600 text-sm font-bold">
+    {dish.price} Fcfa
+  </p>
+  <p className="text-xs text-gray-500">{dish.category}</p>
+</div>
+
             </div>
           ))
         ) : (

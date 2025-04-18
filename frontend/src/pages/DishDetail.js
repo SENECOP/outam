@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { ChevronLeft, Plus, ShoppingBag, ChevronRight } from "lucide-react";
+import { ChevronLeft, Plus, ShoppingBag } from "lucide-react";
 
 const DishDetail = () => {
   const navigate = useNavigate();
@@ -11,7 +11,6 @@ const DishDetail = () => {
   const [extras, setExtras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentSlide, setCurrentSlide] = useState(4); // Exemple 4/9
 
   useEffect(() => {
     const fetchDish = async () => {
@@ -51,25 +50,23 @@ const DishDetail = () => {
   }
 
   if (error) {
-    return (
-      <div className="text-center text-red-500 mt-10">{error}</div>
-    );
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
   }
 
   if (!dish) return null;
 
   return (
-    <div className="relative max-w-md mx-auto bg-white min-h-screen rounded-t-3xl overflow-hidden">
+    <div className="relative max-w-md mx-auto bg-white min-h-screen rounded-t-3xl overflow-hidden shadow-lg">
       {/* Image du plat */}
       <div className="relative">
         <img
           src={
             dish.image?.startsWith("http")
               ? dish.image
-              : `http://localhost:5000${dish.image}`
+              : `https://outam.onrender.com${dish.image}`
           }
           alt={dish.title}
-          className="w-full h-56 object-cover"
+          className="w-full h-80 object-cover rounded-b-3xl"
           onError={(e) => {
             e.target.src = "https://via.placeholder.com/400x200?text=Image";
           }}
@@ -78,43 +75,43 @@ const DishDetail = () => {
         {/* Bouton retour */}
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-3 left-3 bg-white rounded-full p-1"
+          className="absolute top-4 left-4 bg-white rounded-full p-2 shadow hover:scale-105 transition"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={22} />
         </button>
 
         {/* Panier */}
-        <button className="absolute top-3 right-3 bg-white rounded-full p-1">
-          <ShoppingBag size={22} />
+        <button className="absolute top-4 right-4 bg-white rounded-full p-2 shadow hover:scale-105 transition">
+          <ShoppingBag size={20} />
         </button>
       </div>
 
       {/* Contenu */}
-      <div className="bg-white rounded-t-3xl -mt-6 p-5">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">{dish.title}</h2>
-          <button className="bg-yellow-400 text-white rounded-full p-2">
+      <div className="bg-white rounded-t-3xl -mt-1 p-6">
+      <div className="flex justify-between items-center mb-2">
+          <h2 className="text-2xl font-bold text-gray-800">{dish.title}</h2>
+          <button className="bg-yellow-400 text-white rounded-full p-2 shadow hover:scale-105 transition">
             <Plus size={18} />
           </button>
         </div>
 
-        <p className="text-md font-bold mt-1">{dish.price} Fcfa</p>
+        <p className="text-lg text-yellow-600 font-semibold mb-4">{dish.price} Fcfa</p>
 
-        <p className="text-sm text-gray-600 mt-2">{dish.description}</p>
+        <p className="text-sm text-gray-600 leading-relaxed">{dish.description}</p>
 
         {/* Extras */}
         {dish.extras && dish.extras.length > 0 && (
-          <div className="mt-4">
-            <h3 className="font-medium text-sm mb-2">Ajouter des extras</h3>
+          <div className="mt-6">
+            <h3 className="text-md font-semibold text-gray-700 mb-2">Extras disponibles</h3>
             <div className="flex flex-wrap gap-2">
               {dish.extras.map((extra, index) => (
                 <button
                   key={index}
                   onClick={() => handleSelectExtra(extra)}
-                  className={`px-3 py-1 text-sm rounded ${
+                  className={`px-3 py-1 text-sm rounded-full border transition ${
                     extras.includes(extra)
-                      ? "bg-yellow-400 text-white"
-                      : "bg-gray-200 text-gray-800"
+                      ? "bg-yellow-500 text-white border-yellow-500"
+                      : "bg-gray-100 text-gray-700 border-gray-300"
                   }`}
                 >
                   {extra}
@@ -124,11 +121,8 @@ const DishDetail = () => {
           </div>
         )}
 
-        {/* Slider pagination (si besoin plus tard) */}
-        
-
         {/* Bouton commander */}
-        <button className="w-full bg-yellow-400 text-white font-semibold text-lg py-3 rounded-xl mt-6">
+        <button className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md">
           Commander
         </button>
       </div>

@@ -22,6 +22,8 @@ import RegisterRestaurant from './pages/RegisterRestaurant';
 import DailyMenu from './pages/DailyMenu';
 import DishDetail from './pages/DishDetail';
 import DesktopDailyMenu from './pages/DailyMenu';
+import ProfilRestaurant from './pages/Profile';
+import ActiveMenus from './pages/ActiveMenus';
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
           <Route path="/registeresto" element={<RegisterRestaurant />} />
           <Route path="/menu/:restaurantId" element={<DesktopDailyMenu />} />
           <Route path="/restaurant/:id/dish/:dishId" element={<DishDetail />} />
+          <Route path="/profil/:restaurantId" element={<ProfilRestaurant />} />
+          <Route path="/restaurant/:restaurantId/menus-actifs" element={<ActiveMenus />} />
 
   
           </Routes>

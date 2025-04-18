@@ -130,9 +130,11 @@ export default function GererMenu({ user }) {
                 <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
                   QR Code
                 </Link>
-                 <Link className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                                  Historique
-                                </Link>
+              
+
+<Link to={`/restaurant/${restaurantId}/menus-actifs`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+  Historique
+</Link>
               </div>
             </nav>
 
