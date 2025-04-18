@@ -102,7 +102,7 @@ const DesktopDailyMenu = () => {
     <img
       src={currentRestaurant.logo}
       alt="Logo du restaurant"
-      className="h-12 w-12 object-cover rounded-full shadow"
+      className="h-12 w-12 object-cover rounded-full"
       onError={(e) => {
         e.target.src = "/images/default-logo.jpg"; // Logo fallback si l'image échoue
       }}
@@ -110,15 +110,15 @@ const DesktopDailyMenu = () => {
   )}
 
   {/* Titre de bienvenue */}
-  <h1 className="text-2xl font-bold text-center">
+  <h3 className="text-2xl font-bold text-center">
     Bienvenue au restaurant {currentRestaurant?.name || "Restaurant"}
-  </h1>
+  </h3>
 
   {/* Logo du projet à droite */}
   <img
     src="https://outam.onrender.com/assets/logo.png" // Remplace cette URL par le chemin vers ton logo de projet
     alt="Logo du projet"
-    className="h-12 w-12 object-cover rounded-full shadow"
+    className="h-12 w-12 object-cover rounded-full"
     onError={(e) => {
       e.target.src = "/images/default-project-logo.jpg"; // Logo fallback si l'image échoue
     }}
