@@ -7,12 +7,18 @@ const RegisterRestaurant = () => {
   const [commercantName, setCommercantName] = useState("");
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
+  const [confirmMotDePasse, setConfirmMotDePasse] = useState(""); // ✅ champ de confirmation
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (motDePasse !== confirmMotDePasse) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
 
     try {
       const response = await axios.post("https://outam.onrender.com/api/restaurant/registeresto", {
@@ -31,10 +37,11 @@ const RegisterRestaurant = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{ backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
-        backgroundRepeat: "no-repeat", // Empêche la répétition de l'image
-          backgroundSize: "cover"
-       }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{
+      backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "cover"
+    }}>
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-96">
         <h2 className="text-2xl font-bold mb-4">Créer un Restaurant</h2>
 
@@ -67,6 +74,14 @@ const RegisterRestaurant = () => {
           value={motDePasse}
           onChange={(e) => setMotDePasse(e.target.value)}
           placeholder="Mot de passe"
+          required
+          className="w-full mb-2 p-2 border rounded"
+        />
+        <input
+          type="password"
+          value={confirmMotDePasse}
+          onChange={(e) => setConfirmMotDePasse(e.target.value)}
+          placeholder="Confirmez le mot de passe"
           required
           className="w-full mb-4 p-2 border rounded"
         />

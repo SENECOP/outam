@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from "../context/AppContext";
+import DashboardLayout from '../components/DashboardLayout';
 
 export default function GererMenu({ user }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -91,10 +92,11 @@ export default function GererMenu({ user }) {
   if (!restaurant) return <p className="text-center text-gray-500">Aucune donnée disponible</p>;
   
   return (
+    <DashboardLayout>
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isSidebarOpen={isSidebarOpen} />
+      {/* <Sidebar isSidebarOpen={isSidebarOpen} /> */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header toggleSidebar={toggleSidebar} />
+        {/* <Header toggleSidebar={toggleSidebar} /> */}
         <main className="flex-1 overflow-y-auto p-4 ml-1">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center mb-6">
@@ -180,5 +182,6 @@ export default function GererMenu({ user }) {
         </main>
       </div>
     </div>
+    </DashboardLayout>
   );
 }

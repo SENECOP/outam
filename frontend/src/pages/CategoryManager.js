@@ -86,9 +86,9 @@ export default function CategoryManager() {
                 >
                   QR Code
                 </Link>
-                {/* <button className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                  Historique
-                </button> */}
+                <Link to={`/restaurant/${restaurantId}/menus-actifs`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+  Historique
+</Link>
               </div>
             </nav>
             <div className="bg-white shadow-sm rounded-lg overflow-hidden">

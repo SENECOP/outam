@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from "../components/DashboardLayout";
 
 
+
 export default function RestaurantDashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const { id } = useParams();
@@ -20,7 +21,8 @@ export default function RestaurantDashboard() {
   const [editForm, setEditForm] = useState(null);
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const { currentRestaurant } = useAppContext();
-  const { restaurantId } = useParams();
+  const restaurantId = currentRestaurant ? currentRestaurant._id : null;
+    // const { restaurantId } = useParams();
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -157,9 +159,12 @@ export default function RestaurantDashboard() {
                 >
                   QR Code
                 </Link>
-                <Link className="text-gray-600 hover:text-gray-800 px-3 py-2">
-                                 Historique
-                               </Link>
+              
+              
+
+              <Link to={`/restaurant/${restaurantId}/menus-actifs`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                Historique
+              </Link>
               </div>
             </nav>
 

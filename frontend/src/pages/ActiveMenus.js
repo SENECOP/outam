@@ -1,13 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
-
+import { useParams, Link } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import { useNavigate } from 'react-router-dom';
+import { useAppContext } from "../context/AppContext";
 const ActiveMenus = () => {
-  const { restaurantId } = useParams();
+  // const { restaurantId } = useParams();
   const [menus, setMenus] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState(null);
+    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const { id } = useParams();
+    const [restaurant, setRestaurant] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [shouldRefresh, setShouldRefresh] = useState(false);
+    const [isToggling, setIsToggling] = useState(false);
+    const navigate = useNavigate();
+    const { currentRestaurant } = useAppContext();
+    const restaurantId = currentRestaurant ? currentRestaurant._id : null;
+    const handleQRCodeClick = (e) => {
+      if (!currentRestaurant) {
+        e.preventDefault();
+        alert('Aucun restaurant sélectionné');
+        navigate('/restaurants');
+      }
+    };
 
   useEffect(() => {
     const fetchMenus = async () => {
@@ -30,8 +50,55 @@ const ActiveMenus = () => {
 
   return (
     <DashboardLayout>
-    <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+     <div className="flex h-screen bg-gray-100">
+      {/* <Sidebar isSidebarOpen={isSidebarOpen} /> */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* <Header toggleSidebar={toggleSidebar} /> */}
+        <main className="flex-1 overflow-y-auto p-4 ml-1">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center mb-6">
+              <div className="bg-blue-100 p-3 rounded-full mr-4 shadow-md">
+                <BookOpen size={24} className="text-blue-500" />
+              </div>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Menu du restaurant
+              </h1>
+            </div>
 
+            <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
+              <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
+                <Link 
+                  to={`/restaurant/${restaurantId}`}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Menu actuel
+                </Link>            
+                <Link to={`/gerermenu/${id}`} className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
+                  Gérer menu
+                </Link>
+                <Link to={`/restaurant/${restaurantId}/menu/create`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  Créer un menu
+                </Link>
+                <Link
+                  to={`/addcategorie/${id}`}
+                  onClick={handleQRCodeClick}
+                  className="text-gray-600 hover:text-gray-800 px-3 py-2"
+                >
+                  Creer une categorie
+                </Link>
+                <Link to={`/restaurants/${restaurantId}/qrcode`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+                  QR Code
+                </Link>
+              
+
+<Link to={`/restaurant/${restaurantId}/menus-actifs`} className="text-gray-600 hover:text-gray-800 px-3 py-2">
+  Historique
+</Link>
+              </div>
+            </nav>
+
+            <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+    
     <div className="max-w-4xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4 text-center">Menus Actifs</h2>
 
@@ -60,6 +127,10 @@ const ActiveMenus = () => {
         </div>
       )}
     </div>
+    </div>
+          </div>
+        </main>
+      </div>
     </div>
     </DashboardLayout>
   );

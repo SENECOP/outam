@@ -52,11 +52,11 @@ export default function HomeRestauran() {
       description: 'Modifiez, mettez à jour et gérez votre menu.',
       icon: <LayoutDashboard className="w-6 h-6 text-blue-600" />,
     },
-    {
-      title: 'Commandes clients',
-      description: 'Suivez et gérez les commandes de vos clients.',
-      icon: <ShoppingCart className="w-6 h-6 text-red-500" />,
-    },
+    // {
+    //   title: 'Commandes clients',
+    //   description: 'Suivez et gérez les commandes de vos clients.',
+    //   icon: <ShoppingCart className="w-6 h-6 text-red-500" />,
+    // },
     {
       title: 'Analyse des données',
       description: 'Consultez les statistiques et performances.',
@@ -77,18 +77,24 @@ export default function HomeRestauran() {
 
         {/* Contenu principal */}
         <div className="p-6 mx-auto max-w-3xl lg:max-w-4xl xl:max-w-6xl">
-  <div className="flex items-center gap-4 mb-4">
-    {user?.photoDeProfil && (
-      <img
-        src={user.photoDeProfil}
-        alt="Profil"
-        className="w-12 h-12 rounded-lg"
-      />
-    )}
-    <h2 className="text-2xl font-bold">
-      Bonjour {user?.name || 'Utilisateur'} !
-    </h2>
-  </div>
+        <div className="flex items-center gap-4 mb-4">
+        <img
+  src={
+    user?.commercantInfo?.photoDeProfil?.startsWith("http")
+      ? user.commercantInfo.photoDeProfil
+      : `https://outam.onrender.com/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
+  }
+  alt="Profil"
+  className="w-12 h-12 rounded-lg object-cover"
+/>
+
+
+
+  <h2 className="text-2xl font-bold">
+    Bonjour {user?.name || 'Utilisateur'} !
+  </h2>
+</div>
+
 
   {error && (
     <div className="text-red-500 text-lg mb-4">
