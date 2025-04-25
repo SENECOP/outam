@@ -30,6 +30,7 @@ const orders = new Array(4).fill({
   status: "en cuisine",
   paid: true,
 });
+const apiUrl = process.env.REACT_APP_API_URL;
 
 export default function Analyses() {
   return (
@@ -72,7 +73,7 @@ export default function Analyses() {
 
           <div className="bg-white shadow rounded-xl p-4 flex items-center gap-4">
             <img
-              src="https://outam.onrender.com/assets/p.jpeg"
+              src={`${apiUrl}/assets/p.jpeg`}
               alt="Plat du jour"
               className="w-12 h-12 rounded"
             />

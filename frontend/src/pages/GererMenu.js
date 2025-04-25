@@ -36,7 +36,7 @@ export default function GererMenu({ user }) {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://outam.onrender.com/api/restaurant/${id}`
+          `${apiUrl}/api/restaurant/${id}`
         );
         if (!response.ok)
           throw new Error('Erreur lors du chargement des données');
@@ -58,7 +58,7 @@ export default function GererMenu({ user }) {
     setIsToggling(true);
     
     try {
-      const res = await fetch(`https://outam.onrender.com/api/restaurant/${id}/menus/${menuId}/status`, {
+      const res = await fetch(`${apiUrl}/api/restaurant/${id}/menus/${menuId}/status`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",

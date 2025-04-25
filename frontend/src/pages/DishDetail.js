@@ -20,7 +20,7 @@ const DishDetail = () => {
         setError(null);
 
         const res = await axios.get(
-          `https://outam.onrender.com/api/restaurant/${restaurantId}/dish/${dishId}`
+          `${apiUrl}/api/restaurant/${restaurantId}/dish/${dishId}`
         );
 
         setDish(res.data);
@@ -64,7 +64,7 @@ const DishDetail = () => {
           src={
             dish.image?.startsWith("http")
               ? dish.image
-              : `https://outam.onrender.com${dish.image}`
+              : `${apiUrl}${dish.image}`
           }
           alt={dish.title}
           className="w-full h-80 object-cover rounded-b-3xl"

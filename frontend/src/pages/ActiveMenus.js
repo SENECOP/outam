@@ -26,7 +26,7 @@ const ActiveMenus = () => {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const res = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}/menus/actives-une-fois`);
+        const res = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/menus/actives-une-fois`);
         setMenus(res.data);
       } catch (err) {
         console.error('Erreur lors du chargement des menus actifs', err);

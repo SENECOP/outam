@@ -2,8 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import { Link } from 'react-router-dom'; // Assure-toi d'importer Link de react-router-dom
-
+import { Link } from 'react-router-dom';
 
 const LoginRestaurant = () => {
   const [email, setEmail] = useState('');
@@ -18,77 +17,71 @@ const LoginRestaurant = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-  
+
     try {
       console.log('Tentative de connexion avec :', { email, motDePasse });
-  
+
       // 1. Authentification
-      const authResponse = await axios.post(
-        'https://outam.onrender.com/api/restaurant/login',
-        { email, motDePasse }
-      );
-  
+      const authResponse = await axios.post(`${apiUrl}/api/restaurant/login`, {
+        email,
+        motDePasse,
+      });
+
       console.log('Réponse Authentification:', authResponse.data);
-  
+
       const token = authResponse.data.token;
-  
+
       // 2. Récupération des données utilisateur
-      const userResponse = await axios.get('https://outam.onrender.com/api/restaurant/commercant/me',{
-         headers: { Authorization: `Bearer ${token}` } }
-      );
-  
+      const userResponse = await axios.get(`${apiUrl}/api/restaurant/commercant/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       console.log('Données utilisateur récupérées:', userResponse.data);
-  
-      // 3. Récupération des données du restaurant si elles ne sont pas incluses
+
+      // 3. Récupération des données du restaurant
       let restaurantData = {};
       if (userResponse.data.restaurantId) {
         console.log('ID du restaurant:', userResponse.data.restaurantId);
-  
+
         const restaurantResponse = await axios.get(
-          `https://outam.onrender.com/api/restaurant/${userResponse.data.restaurantId}`,
+          `${apiUrl}/api/restaurant/${userResponse.data.restaurantId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-  
+
         console.log('Données du restaurant récupérées:', restaurantResponse.data);
         restaurantData = restaurantResponse.data;
       }
-  
-      // 4. Préparation des données pour le contexte
+
+      // 4. Mise à jour du contexte
       const userData = {
         ...userResponse.data,
         token,
         restaurant: restaurantData,
       };
-  
-      console.log('Données combinées à stocker dans le contexte:', userData);
-  
-      // 5. Mise à jour du contexte
+
       loginUser(userData);
-  
-      // 6. Redirection
       navigate('/homer');
     } catch (error) {
       console.error('Erreur lors du processus de connexion:', error);
-  
       setError(
-        error.response?.data?.message ||
-          'Erreur de connexion. Veuillez réessayer.'
+        error.response?.data?.message || 'Erreur de connexion. Veuillez réessayer.'
       );
     } finally {
       setIsLoading(false);
     }
   };
-  
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100" style={{ backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
-      backgroundRepeat: "no-repeat", // Empêche la répétition de l'image
-        backgroundSize: "cover"
-     }}>
+    <div
+      className="flex justify-center items-center min-h-screen bg-gray-100"
+      style={{
+        backgroundImage: `url('${apiUrl}/assets/bg.png')`,
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+      }}
+    >
       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center mb-6">
-          Se connecter
-        </h2>
+        <h2 className="text-2xl font-semibold text-center mb-6">Se connecter</h2>
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -135,15 +128,15 @@ const LoginRestaurant = () => {
             {isLoading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
         </form>
-        <div className="mt-4 text-center">
-  <p className="text-sm text-gray-600">
-    Vous n'avez pas de compte ?{' '}
-    <Link to="/registeresto" className="text-yellow-600 hover:underline font-medium">
-      Créer un compte
-    </Link>
-  </p>
-</div>
 
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            Vous n'avez pas de compte ?{' '}
+            <Link to="/registeresto" className="text-yellow-600 hover:underline font-medium">
+              Créer un compte
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
