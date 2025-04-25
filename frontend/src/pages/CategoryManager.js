@@ -14,6 +14,7 @@ export default function CategoryManager() {
   // Utilisation du AppContext pour obtenir et manipuler les catégories
   const { categories, addCategory, removeCategory } = useAppContext();
   const [newCategory, setNewCategory] = useState("");
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const { id } = useParams();
   const { currentRestaurant } = useAppContext();

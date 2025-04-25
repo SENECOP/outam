@@ -17,6 +17,7 @@ import DashboardLayout from '../components/DashboardLayout';
 
 const QrcodeResto = () => {
   const [qrCodeEnabled, setQrCodeEnabled] = useState(true);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const { restaurantId } = useParams();
   const { currentRestaurant } = useAppContext();
@@ -50,7 +51,7 @@ const QrcodeResto = () => {
   const toggleMenuVisibility = async () => {
     try {
       await axios.patch(
-        `https://outam.onrender.com/api/restaurant/${restaurantId}/menu-status`,
+        `${apiUrl}/api/restaurant/${restaurantId}/menu-status`,
         {
           isActive: !isMenuActive,
         }
@@ -156,7 +157,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchQrStatus = async () => {
       try {
-        const res = await axios.get(`https://outam.onrender.com/api/restaurant/restaurant${restaurantId}`);
+        const res = await axios.get(`${apiUrl}/api/restaurant/restaurant${restaurantId}`);
         setQrCodeEnabled(res.data.qrCodeEnabled);
       } catch (error) {
         console.error("Erreur lors de la récupération du statut du QR code :", error);
@@ -169,7 +170,7 @@ useEffect(() => {
   const toggleQRCodeVisibility = async () => {
     try {
       const updatedValue = !qrCodeEnabled;
-      await axios.patch(`https://outam.onrender.com/api/restaurant/${restaurantId}/qrcode-visibility`, {
+      await axios.patch(`${apiUrl}/api/restaurant/${restaurantId}/qrcode-visibility`, {
         enable: updatedValue,
       });
       setQrCodeEnabled(updatedValue);

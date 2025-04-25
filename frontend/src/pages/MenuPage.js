@@ -7,13 +7,14 @@ const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchMenu = async () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `https://outam.onrender.com/api/restaurant/${id}/menu`
+          `${apiUrl}/api/restaurant/${id}/menu`
         ); // Remplace par la route de ton API pour récupérer le menu
         const data = await response.json();
 

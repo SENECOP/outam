@@ -9,6 +9,7 @@ export default function HomeRestauran() {
   const [error, setError] = useState(''); // Ajout de l'état pour l'erreur
   const { user } = useAppContext(); // Récupérer l'utilisateur depuis le contexte
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -82,7 +83,7 @@ export default function HomeRestauran() {
   src={
     user?.commercantInfo?.photoDeProfil?.startsWith("http")
       ? user.commercantInfo.photoDeProfil
-      : `https://outam.onrender.com/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
+      : `${apiUrl}/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
   }
   alt="Profil"
   className="w-12 h-12 rounded-lg object-cover"

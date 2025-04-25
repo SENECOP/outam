@@ -9,6 +9,7 @@ function Register() {
   const [typeCommercant, setTypeCommercant] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +18,7 @@ function Register() {
 
     try {
       const response = await axios.post(
-        'https://outam.onrender.com/api/commercant/register',
+        '${apiUrl}/api/commercant/register',
         newCommercant
       );
 

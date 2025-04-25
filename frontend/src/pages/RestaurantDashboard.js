@@ -24,6 +24,7 @@ export default function RestaurantDashboard() {
   const restaurantId = currentRestaurant ? currentRestaurant._id : null;
     // const { restaurantId } = useParams();
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -45,7 +46,7 @@ export default function RestaurantDashboard() {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://outam.onrender.com/api/restaurant/${id}/menus/active`
+        `${apiUrl}/api/restaurant/${id}/menus/active`
       );
       const data = await response.json();
 
@@ -183,7 +184,7 @@ export default function RestaurantDashboard() {
                           src={
                             item.image?.startsWith('http')
                               ? item.image
-                              : `https://outam.onrender.com${item.image}`
+                              : `${apiUrl}${item.image}`
                           }
                           alt={item.title || 'Image non disponible'}
                           className="w-16 h-16 rounded-md object-cover mr-4"

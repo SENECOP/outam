@@ -11,6 +11,7 @@ export default function DashboardLayout({ children }) {
   const [cookies, , removeCookie] = useCookies(["accessToken", "refreshToken"]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isFirstLoad = useRef(true);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }) {
             src={
               user?.photoDeProfil?.startsWith("http")
                 ? user.photoDeProfil
-                : `https://outam.onrender.com/assets/${user?.photoDeProfil || 'user.jpeg'}`
+                : `${apiUrl}/assets/${user?.photoDeProfil || 'user.jpeg'}`
             }
             alt="Profil"
             className="w-12 h-12 rounded-lg object-cover"
@@ -121,7 +122,7 @@ export default function DashboardLayout({ children }) {
           <h1 className="text-xl font-bold ml-4">{currentRestaurant?.name || "Restaurant"}</h1>
           <div className="ml-auto flex items-center space-x-4">
             <img
-              src="https://outam.onrender.com/assets/logo.png"
+              src="${apiUrl}/assets/logo.png"
               alt="Logo"
               className="w-16 h-16 object-contain"
             />

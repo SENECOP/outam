@@ -6,6 +6,7 @@ function RestaurantPage() {
   const [restaurants, setRestaurants] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const token = localStorage.getItem('token');

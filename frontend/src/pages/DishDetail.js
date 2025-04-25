@@ -6,6 +6,7 @@ import { ChevronLeft, Plus, ShoppingBag } from "lucide-react";
 const DishDetail = () => {
   const navigate = useNavigate();
   const { id: restaurantId, dishId } = useParams();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const [dish, setDish] = useState(null);
   const [extras, setExtras] = useState([]);
@@ -19,7 +20,7 @@ const DishDetail = () => {
         setError(null);
 
         const res = await axios.get(
-          `https://outam.onrender.com/api/restaurant/${restaurantId}/dish/${dishId}`
+          `${apiUrl}/api/restaurant/${restaurantId}/dish/${dishId}`
         );
 
         setDish(res.data);
@@ -63,7 +64,7 @@ const DishDetail = () => {
           src={
             dish.image?.startsWith("http")
               ? dish.image
-              : `https://outam.onrender.com${dish.image}`
+              : `${apiUrl}${dish.image}`
           }
           alt={dish.title}
           className="w-full h-80 object-cover rounded-b-3xl"

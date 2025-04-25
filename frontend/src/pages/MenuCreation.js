@@ -11,6 +11,8 @@ function MenuCreation() {
   const { currentRestaurant } = useAppContext();
   const restaurantId = currentRestaurant ? currentRestaurant._id : null;
   const [menuTitle, setMenuTitle] = useState("");
+  const apiUrl = process.env.REACT_APP_API_URL;
+
   const { categories } = useAppContext(); // Utilisation du context pour accéder aux catégories
   const [selectedCategory, setSelectedCategory] = useState(categories[0] || "");
   const { id } = useParams();
@@ -84,7 +86,7 @@ function MenuCreation() {
       });
 
       await axios.post(
-        `https://outam.onrender.com/api/restaurant/${restaurantId}/menus`,
+        `${apiUrl}/api/restaurant/${restaurantId}/menus`,
         formData,
         {
           headers: {
@@ -107,7 +109,7 @@ function MenuCreation() {
     if (restaurantId) {
       const fetchDishes = async () => {
         try {
-          const response = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}/dishes`);
+          const response = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/dishes`);
           setSuggestedDishes(response.data);
         } catch (error) {
           console.error("Erreur lors de la récupération des plats suggérés", error);

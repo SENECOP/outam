@@ -10,6 +10,7 @@ function Login() {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
   const [cookies, setCookie] = useCookies(['accessToken', 'refreshToken']); // On utilise le hook useCookies pour accéder aux cookies
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,7 +18,7 @@ function Login() {
 
     try {
       const response = await axios.post(
-        'https://outam.onrender.com/api/commercant/login',
+        '${apiUrl}/api/commercant/login',
         {
           email,
           motDePasse,

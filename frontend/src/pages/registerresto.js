@@ -11,6 +11,7 @@ const Registerresto = () => {
   const [imageUrl, setImageUrl] = useState(null); // Image de profil
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleImageChange = (e) => {
     setImageUrl(e.target.files[0]);
@@ -32,7 +33,7 @@ const Registerresto = () => {
     try {
       // Envoi des données à l'API pour l'enregistrement du commerçant
       const response = await axios.post(
-        'https://outam.onrender.com/api/commercant/registeresto',
+        '${apiUrl}/api/commercant/registeresto',
         formData,
         {
           headers: {

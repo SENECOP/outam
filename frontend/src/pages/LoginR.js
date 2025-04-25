@@ -9,6 +9,7 @@ const LoginR = () => {
   const [error, setError] = useState('');
   const { login } = useAuth(); // Utilisation du contexte pour la connexion
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleLogin = async (e) => {
     e.preventDefault();

@@ -10,6 +10,7 @@ const RegisterRestaurant = () => {
   const [confirmMotDePasse, setConfirmMotDePasse] = useState(""); // ✅ champ de confirmation
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ const RegisterRestaurant = () => {
     }
 
     try {
-      const response = await axios.post("https://outam.onrender.com/api/restaurant/registeresto", {
+      const response = await axios.post("${apiUrl}/api/restaurant/registeresto", {
         name,
         commercantName,
         email,
@@ -38,7 +39,7 @@ const RegisterRestaurant = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{
-      backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
+      backgroundImage: "url('${apiUrl}/assets/bg.png')",
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover"
     }}>

@@ -10,6 +10,7 @@ const ResetPasswordPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ const ResetPasswordPage = () => {
 
     try {
       const response = await axios.post(
-        `https://outam.onrender.com/api/commercant/reset-password/${token}`,
+        `${apiUrl}/api/commercant/reset-password/${token}`,
         { newPassword }
       );
       setMessage(response.data.message);

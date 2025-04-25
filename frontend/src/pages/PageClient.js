@@ -12,13 +12,14 @@ const QrcodeResto = () => {
   const { currentRestaurant } = useAppContext();
   const [isMenuActive, setIsMenuActive] = useState(true);
   const qrCodeRef = useRef(null);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const restaurantUrl = `https://www.qr-oulem.restaurantcheasilm.com/restaurant/${restaurantId}/menu`;
 
   const toggleMenuVisibility = async () => {
     try {
       await axios.patch(
-        `https://outam.onrender.com/api/restaurant/${restaurantId}/menu-status`,
+        `${apiUrl}/api/restaurant/${restaurantId}/menu-status`,
         {
           isActive: !isMenuActive,
         }

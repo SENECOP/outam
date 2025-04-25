@@ -4,7 +4,7 @@ const BackOffice = () => {
   const [qrCodes, setQrCodes] = useState([]);
 
   useEffect(() => {
-    fetch('https://outam.onrender.com/api/qrcodes')
+    fetch('${apiUrl}/api/qrcodes')
       .then((res) => res.json())
       .then((data) => setQrCodes(data))
       .catch((err) => console.error('Erreur de chargement :', err));

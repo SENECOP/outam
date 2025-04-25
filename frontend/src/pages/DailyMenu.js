@@ -13,6 +13,7 @@ const DesktopDailyMenu = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const { currentRestaurant } = useAppContext();
   useEffect(() => {
@@ -21,7 +22,7 @@ const DesktopDailyMenu = () => {
         setLoading(true);
         setError(null);
   
-        const restaurantRes = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}`);
+        const restaurantRes = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}`);
         const restaurant = restaurantRes.data;
   
         // ✅ Vérifie si le menu est visible
@@ -32,7 +33,7 @@ const DesktopDailyMenu = () => {
         }
   
         const menuRes = await axios.get(
-          `https://outam.onrender.com/api/restaurant/${restaurantId}/menus/active`,
+          `${apiUrl}/api/restaurant/${restaurantId}/menus/active`,
           {
             timeout: 5000,
             headers: { "Cache-Control": "no-cache" },
@@ -116,7 +117,7 @@ const DesktopDailyMenu = () => {
 
   {/* Logo du projet à droite */}
   <img
-    src="https://outam.onrender.com/assets/logo.png" // Remplace cette URL par le chemin vers ton logo de projet
+    src="${apiUrl}/assets/logo.png" // Remplace cette URL par le chemin vers ton logo de projet
     alt="Logo du projet"
     className="h-12 w-12 object-cover rounded-full"
     onError={(e) => {
@@ -184,7 +185,7 @@ const DesktopDailyMenu = () => {
                     src={
                       dish.image.startsWith("http")
                         ? dish.image
-                        : `https://outam.onrender.com${dish.image}`
+                        : `${apiUrl}${dish.image}`
                     }
                     alt={dish.title}
                     className="absolute top-0 left-0 w-full h-full object-cover"

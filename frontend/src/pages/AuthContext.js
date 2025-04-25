@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const fetchCommercantInfo = async (token) => {
     try {
       const response = await axios.get(
-        'https://outam.onrender.com/api/commercant/me',
+        '${apiUrl}/api/commercant/me',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, motDePasse) => {
     try {
       const response = await axios.post(
-        'https://outam.onrender.com/api/commercant/loginr',
+        '${apiUrl}/api/commercant/loginr',
         { email, motDePasse }
       );
       const token = response.data.token;

@@ -5,6 +5,7 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await fetch(
-        'https://outam.onrender.com/api/commercant/forgot-password',
+        '${apiUrl}/api/commercant/forgot-password',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

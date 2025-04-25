@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 export default function EditMenuItemForm({ item, onClose }) {
+    const apiUrl = process.env.REACT_APP_API_URL;
+
     const [formData, setFormData] = useState({
         title: item?.title || '',
         price: item?.price?.toString() || '',
@@ -10,7 +12,7 @@ export default function EditMenuItemForm({ item, onClose }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [imagePreview, setImagePreview] = useState(
-        item?.image ? `https://outam.onrender.com${item.image}` : null
+        item?.image ? `${apiUrl}${item.image}` : null
     );
 
     const handleChange = (e) => {
@@ -62,7 +64,7 @@ export default function EditMenuItemForm({ item, onClose }) {
             if (image) formPayload.append('image', image);
 
             const response = await fetch(
-                `https://outam.onrender.com/api/restaurant/${item.restaurantId}/menu/${item._id}`,
+                `${apiUrl}/api/restaurant/${item.restaurantId}/menu/${item._id}`,
                 {
                     method: 'PUT',
                     headers: {
@@ -80,7 +82,7 @@ export default function EditMenuItemForm({ item, onClose }) {
 
             // Mettre à jour l'aperçu avec l'URL complète du serveur
             if (result.imagePath) {
-                setImagePreview(`https://outam.onrender.com${result.imagePath}`);
+                setImagePreview(`${apiUrl}${result.imagePath}`);
             }
 
             onClose(true); // Fermer et rafraîchir

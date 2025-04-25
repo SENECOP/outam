@@ -8,6 +8,7 @@ const RestaurantDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -20,7 +21,7 @@ const RestaurantDetails = () => {
     const fetchRestaurantDetails = async () => {
       try {
         const response = await axios.get(
-          `https://outam.onrender.com/api/etablissements/restaurant/${commercantId}`,
+          `${apiUrl}/api/etablissements/restaurant/${commercantId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
