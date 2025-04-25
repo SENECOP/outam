@@ -8,6 +8,7 @@ const multer = require('multer');
 // Secret pour JWT (vous pouvez le stocker dans une variable d'environnement)
 const JWT_SECRET = 'votre-secret-pour-jwt';
 // Configuration de Multer
+const fs = require('fs');
 const path = require('path');
 const mongoose = require("mongoose");
 const validateMenuItem = (req, res, next) => {
@@ -115,38 +116,41 @@ router.post('/restaurants', async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur' });
     }
 });
+// Importations nécessaires
 
-// 2. Login (POST /login)
+// Route de connexion
 router.post('/login', async (req, res) => {
-    const { email, motDePasse } = req.body;
-    
-    try {
-        // Trouver un restaurant avec cet email dans commercantInfo
-        const restaurant = await Restaurant.findOne({ 'commercantInfo.email': email });
-        if (!restaurant) {
-            return res.status(400).json({ message: 'Commerçant non trouvé' });
-        }
+  const { email, motDePasse } = req.body;
 
-        // Comparer le mot de passe envoyé avec celui stocké
-        const isMatch = await bcrypt.compare(motDePasse, restaurant.commercantInfo.motDePasse);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Mot de passe incorrect' });
-        }
-
-        // Créer un token JWT
-        const token = jwt.sign(
-            { id: restaurant._id },
-            JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        res.json({ token });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erreur serveur' });
+  try {
+    // Recherche du restaurant par email
+    const restaurant = await Restaurant.findOne({ 'commercantInfo.email': email });
+    if (!restaurant) {
+      return res.status(400).json({ message: 'Commerçant non trouvé' });
     }
+
+    // Comparaison du mot de passe
+    const isMatch = await bcrypt.compare(motDePasse, restaurant.commercantInfo.motDePasse);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Mot de passe incorrect' });
+    }
+
+    // Génération du token JWT
+    const token = jwt.sign(
+      { id: restaurant._id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
 });
+
+
 
 // 3. Register (POST /register)
 router.post('/register', async (req, res) => {
@@ -731,5 +735,69 @@ router.get('/:restaurantId/menus/actives-une-fois', async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", error });
   }
 });
+
+
+router.put('/:restaurantId', upload.single('logo'), async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { name } = req.body;
+
+    // 🔹 Extraction manuelle des champs imbriqués (form-data)
+    const commercantInfo = {
+      name: req.body['commercantInfo.name'],
+      email: req.body['commercantInfo.email'],
+      motDePasse: req.body['commercantInfo.motDePasse'],
+      telephone: req.body['commercantInfo.telephone']
+    };
+
+    // 🔹 Validation des champs requis
+    if (!name || !commercantInfo.name || !commercantInfo.email) {
+      return res.status(400).json({ message: 'Les champs name, commercantInfo.name et commercantInfo.email sont requis.' });
+    }
+
+    // 🔹 Récupération du restaurant
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant non trouvé.' });
+    }
+
+    // 🔹 Debug mot de passe reçu
+    if (commercantInfo.motDePasse) {
+      console.log('🔐 Nouveau mot de passe reçu (en clair) :', commercantInfo.motDePasse);
+      // ❌ Ne pas hacher ici, le pre('save') s'en occupe
+    } else {
+      commercantInfo.motDePasse = restaurant.commercantInfo.motDePasse; // garder l'existant
+    }
+
+    // 🔹 Traitement du logo (si envoyé)
+    let logo;
+    if (req.file && req.file.path) {
+      const fileBuffer = fs.readFileSync(req.file.path);
+      logo = fileBuffer.toString('base64');
+    }
+
+    // 🔹 Mise à jour des données
+    restaurant.name = name;
+    restaurant.commercantInfo = {
+      ...restaurant.commercantInfo,
+      ...commercantInfo,
+    };
+
+    if (logo) {
+      restaurant.logo = logo;
+    }
+
+    // 🔹 Sauvegarde => déclenchera le hook pre('save') qui hachera le mot de passe
+    const updatedRestaurant = await restaurant.save();
+    console.log('✅ Restaurant mis à jour avec succès.');
+    res.status(200).json(updatedRestaurant);
+
+  } catch (err) {
+    console.error("❌ Erreur lors de la mise à jour du restaurant:", err);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du restaurant." });
+  }
+});
+
+
 
 module.exports = router;

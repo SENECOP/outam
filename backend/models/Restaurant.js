@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const QRCode = require('qrcode');
+const bcrypt = require('bcrypt');
 
 
 // 🔹 Modèle de Plat (Dish) (SUPPRESSION de `day`)
@@ -43,19 +44,37 @@ const restaurantSchema = new mongoose.Schema({
 
 
 }, { timestamps: true });
-restaurantSchema.pre('save', async function (next) {
-    if (this.isNew) { // Générer un QR Code uniquement à la création
-        try {
-            const qrData = `https://mon-site.com/restaurant/${this._id}`;
-            const qrCodeUrl = await QRCode.toDataURL(qrData);
-            this.qrCode = qrCodeUrl;
-        } catch (error) {
-            console.error("❌ Erreur lors de la génération du QR Code :", error);
-        }
-    }
-    next();
-});
 
-const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+restaurantSchema.pre('save', async function (next) {
+    if (this.isModified('commercantInfo.motDePasse')) {
+      try {
+        // Hacher le mot de passe
+        const hashedPassword = await bcrypt.hash(this.commercantInfo.motDePasse, 10);
+        this.commercantInfo.motDePasse = hashedPassword;
+      } catch (error) {
+        console.error('Erreur lors du hachage du mot de passe:', error);
+      }
+    }
+  
+    // Générer un QR code uniquement lors de la création du restaurant
+    if (this.isNew) {
+      try {
+        const qrData = `https://mon-site.com/restaurant/${this._id}`;
+        const qrCodeUrl = await QRCode.toDataURL(qrData);
+        this.qrCode = qrCodeUrl;
+      } catch (error) {
+        console.error("❌ Erreur lors de la génération du QR Code :", error);
+      }
+    }
+  
+    next();
+  });
+  
+  // Fonction pour vérifier le mot de passe lors de la connexion
+  restaurantSchema.methods.comparePassword = async function (password) {
+    return bcrypt.compare(password, this.commercantInfo.motDePasse);
+  };
+  
+  const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 
 module.exports = Restaurant;
