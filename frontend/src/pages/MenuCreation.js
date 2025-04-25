@@ -86,7 +86,7 @@ function MenuCreation() {
       });
 
       await axios.post(
-        `${apiUrl}/api/restaurant/${restaurantId}/menus`,
+        `https://outam.onrender.com/api/restaurant/${restaurantId}/menus`,
         formData,
         {
           headers: {
@@ -109,7 +109,7 @@ function MenuCreation() {
     if (restaurantId) {
       const fetchDishes = async () => {
         try {
-          const response = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/dishes`);
+          const response = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}/dishes`);
           setSuggestedDishes(response.data);
         } catch (error) {
           console.error("Erreur lors de la récupération des plats suggérés", error);

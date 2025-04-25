@@ -23,7 +23,7 @@ const ProfilRestaurant = () => {
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
-        const { data } = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}`);
+        const { data } = await axios.get(`https://outam.onrender.com/api/restaurant/${restaurantId}`);
         setRestaurant(data);
         setName(data.name || '');
         setImagePreview(data.logo || null);
@@ -70,7 +70,7 @@ const ProfilRestaurant = () => {
       }
 
       const { data } = await axios.put(
-        `${apiUrl}/api/restaurant/${restaurantId}`,
+        `https://outam.onrender.com/api/restaurant/${restaurantId}`,
         formData
       );
 

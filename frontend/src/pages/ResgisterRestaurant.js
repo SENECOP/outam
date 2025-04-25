@@ -13,7 +13,7 @@ const RegisterRestaurant = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('${apiUrl}/api/restaurant/register', {
+      await axios.post('https://outam.onrender.com/api/restaurant/register', {
         restaurantName,
         commercantName,
         email,

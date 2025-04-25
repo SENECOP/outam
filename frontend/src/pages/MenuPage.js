@@ -14,7 +14,7 @@ const MenuPage = () => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${apiUrl}/api/restaurant/${id}/menu`
+          `https://outam.onrender.com/api/restaurant/${id}/menu`
         ); // Remplace par la route de ton API pour récupérer le menu
         const data = await response.json();
 

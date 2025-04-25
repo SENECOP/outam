@@ -22,7 +22,7 @@ const ResetPasswordPage = () => {
 
     try {
       const response = await axios.post(
-        `${apiUrl}/api/commercant/reset-password/${token}`,
+        `https://outam.onrender.com/api/commercant/reset-password/${token}`,
         { newPassword }
       );
       setMessage(response.data.message);

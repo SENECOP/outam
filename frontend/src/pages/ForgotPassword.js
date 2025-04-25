@@ -15,7 +15,7 @@ const ForgotPassword = () => {
 
     try {
       const response = await fetch(
-        '${apiUrl}/api/commercant/forgot-password',
+        'https://outam.onrender.com/api/commercant/forgot-password',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

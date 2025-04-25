@@ -83,7 +83,7 @@ export default function HomeRestauran() {
   src={
     user?.commercantInfo?.photoDeProfil?.startsWith("http")
       ? user.commercantInfo.photoDeProfil
-      : `${apiUrl}/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
+      : `https://outam.onrender.com/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
   }
   alt="Profil"
   className="w-12 h-12 rounded-lg object-cover"

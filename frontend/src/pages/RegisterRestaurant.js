@@ -22,7 +22,7 @@ const RegisterRestaurant = () => {
     }
 
     try {
-      const response = await axios.post("${apiUrl}/api/restaurant/registeresto", {
+      const response = await axios.post("https://outam.onrender.com/api/restaurant/registeresto", {
         name,
         commercantName,
         email,
@@ -39,7 +39,7 @@ const RegisterRestaurant = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100" style={{
-      backgroundImage: "url('${apiUrl}/assets/bg.png')",
+      backgroundImage: "url('https://outam.onrender.com/assets/bg.png')",
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover"
     }}>

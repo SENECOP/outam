@@ -18,7 +18,7 @@ function Register() {
 
     try {
       const response = await axios.post(
-        '${apiUrl}/api/commercant/register',
+        'https://outam.onrender.com/api/commercant/register',
         newCommercant
       );
 

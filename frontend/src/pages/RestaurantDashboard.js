@@ -46,7 +46,7 @@ export default function RestaurantDashboard() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${apiUrl}/api/restaurant/${id}/menus/active`
+        `https://outam.onrender.com/api/restaurant/${id}/menus/active`
       );
       const data = await response.json();
 
@@ -184,7 +184,7 @@ export default function RestaurantDashboard() {
                           src={
                             item.image?.startsWith('http')
                               ? item.image
-                              : `${apiUrl}${item.image}`
+                              : `https://outam.onrender.com${item.image}`
                           }
                           alt={item.title || 'Image non disponible'}
                           className="w-16 h-16 rounded-md object-cover mr-4"
