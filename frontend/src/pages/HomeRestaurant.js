@@ -44,6 +44,16 @@ export default function HomeRestauran() {
         console.error(errorMsg, err);
       }
     }
+  
+    if (title === 'Analyse des données') {
+      try {
+        navigate(`/restaurant/${user.restaurantId}/analyse`);
+      } catch (err) {
+        const errorMsg = 'Erreur de redirection vers l’analyse';
+        setError(errorMsg);
+        console.error(errorMsg, err);
+      }
+    }
   };
   
 
