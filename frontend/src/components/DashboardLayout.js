@@ -79,10 +79,16 @@ export default function DashboardLayout({ children }) {
   <span>Menu</span>
 </Link>
 
-          {/* <a href="#" className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded">
-            <div className="bg-yellow-500 p-2 rounded-full"><ShoppingCart size={20} className="text-white" /></div>
-            <span>Commandes</span>
-          </a> */}
+<Link
+  to={`/restaurant/${currentRestaurant?._id || ''}/orders`}
+  className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded text-gray-600 hover:text-gray-800"
+>
+  <div className="bg-yellow-500 p-2 rounded-full">
+    <ShoppingCart size={20} className="text-white" />
+  </div>
+  <span>Commandes</span>
+</Link>
+
         <Link 
   to={`/restaurant/${currentRestaurant?._id || ''}/analyse`}
   className="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded text-gray-600 hover:text-gray-800"

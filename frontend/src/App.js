@@ -18,6 +18,9 @@ import DesktopDailyMenu from './pages/DailyMenu';
 import ProfilRestaurant from './pages/Profile';
 import ActiveMenus from './pages/ActiveMenus';
 import Analyses from './pages/Analyses';
+import OrderSummary from './pages/OrderSummary';
+import OrdersList from './pages/OrdersList';
+import CartPage from './pages/CartPage';
 
 function App() {
   return (
@@ -46,6 +49,10 @@ function App() {
           <Route path="/profil/:restaurantId" element={<ProfilRestaurant />} />
           <Route path="/restaurant/:restaurantId/menus-actifs" element={<ActiveMenus />} />
           <Route path="/restaurant/:restaurantId/analyse" element={<Analyses />} />
+          <Route path="/order-summary" element={<OrderSummary />} />
+          <Route path="/restaurant/:restaurantId/orders" element={<OrdersList />} />
+          <Route path="/cart" element={<CartPage />} />
+
 
   
           </Routes>

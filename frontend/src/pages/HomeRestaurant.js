@@ -29,9 +29,17 @@ export default function HomeRestauran() {
       try {
         navigate(`/restaurant/${user.restaurantId}`);
       } catch (err) {
-        const errorMsg = 'Erreur de redirection vers le menu';
-        setError(errorMsg);
-        console.error(errorMsg, err);
+        setError('Erreur de redirection vers le menu');
+        console.error('Erreur de redirection vers le menu', err);
+      }
+    }
+  
+    if (title === 'Commandes clients') {
+      try {
+        navigate(`/restaurant/${user.restaurantId}/orders`);
+      } catch (err) {
+        setError('Erreur de redirection vers les commandes');
+        console.error('Erreur de redirection vers les commandes', err);
       }
     }
   
@@ -39,9 +47,8 @@ export default function HomeRestauran() {
       try {
         navigate(`/profil/${user.restaurantId}`);
       } catch (err) {
-        const errorMsg = 'Erreur de redirection vers le profil';
-        setError(errorMsg);
-        console.error(errorMsg, err);
+        setError('Erreur de redirection vers le profil');
+        console.error('Erreur de redirection vers le profil', err);
       }
     }
   
@@ -49,12 +56,12 @@ export default function HomeRestauran() {
       try {
         navigate(`/restaurant/${user.restaurantId}/analyse`);
       } catch (err) {
-        const errorMsg = 'Erreur de redirection vers l’analyse';
-        setError(errorMsg);
-        console.error(errorMsg, err);
+        setError('Erreur de redirection vers l’analyse');
+        console.error('Erreur de redirection vers l’analyse', err);
       }
     }
   };
+  
   
 
   const menuItems = [
@@ -63,11 +70,11 @@ export default function HomeRestauran() {
       description: 'Modifiez, mettez à jour et gérez votre menu.',
       icon: <LayoutDashboard className="w-6 h-6 text-blue-600" />,
     },
-    // {
-    //   title: 'Commandes clients',
-    //   description: 'Suivez et gérez les commandes de vos clients.',
-    //   icon: <ShoppingCart className="w-6 h-6 text-red-500" />,
-    // },
+    {
+      title: 'Commandes clients',
+      description: 'Suivez et gérez les commandes de vos clients.',
+      icon: <ShoppingCart className="w-6 h-6 text-red-500" />,
+    },
     {
       title: 'Analyse des données',
       description: 'Consultez les statistiques et performances.',
