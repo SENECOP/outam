@@ -10,6 +10,8 @@ const Restaurant = require("./models/Restaurant");
 const Menu = require("./models/Menu");
 const Supermarche = require("./models/Supermarche");
 const Produit = require("./models/Produit");
+const Extras = require("./models/Extras");
+
 const Commande = require("./models/Commande");
 const Publicite = require("./models/Publicite");
 const commercantRoutes = require("./routes/commercantRoutes"); // Importer les routes
@@ -17,6 +19,9 @@ const cookieParser = require('cookie-parser');
 const etablissementRoutes = require("./routes/etablissement");
 const qrCodeRoutes = require("./routes/qrCodeRoutes");
 const restaurantRoutes = require('./routes/restaurantRoutes');
+const extrasRoutes = require('./routes/extrasRoutes');
+
+
 
 const path = require('path');
 
@@ -66,6 +71,7 @@ app.use("/api/commercant", commercantRoutes);
 app.use("/api/etablissements", etablissementRoutes);
 app.use("/api", qrCodeRoutes);
 app.use('/api/restaurant', restaurantRoutes);
+app.use('/api/extras', extrasRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

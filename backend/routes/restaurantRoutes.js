@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Restaurant = require('../models/Restaurant');  // Modèle Restaurant
+const Commande = require("../models/Commande");
+
 const router = express.Router();
 const multer = require('multer');
 
@@ -795,6 +797,68 @@ router.put('/:restaurantId', upload.single('logo'), async (req, res) => {
   } catch (err) {
     console.error("❌ Erreur lors de la mise à jour du restaurant:", err);
     res.status(500).json({ message: "Erreur lors de la mise à jour du restaurant." });
+  }
+});
+
+
+router.post("/:restaurantId/commandes", async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const { dishId, extrasIds = [], total } = req.body;
+
+    if (
+      !restaurantId ||
+      !dishId ||
+      typeof total !== "number" ||
+      !mongoose.Types.ObjectId.isValid(restaurantId) ||
+      !mongoose.Types.ObjectId.isValid(dishId)
+    ) {
+      return res.status(400).json({ message: "Données manquantes ou invalides" });
+    }
+
+    const newCommande = new Commande({
+      restaurant: restaurantId,
+      dish: dishId,
+      extras: extrasIds,
+      total,
+      date: new Date(), // utile si ton modèle ne le gère pas automatiquement
+    });
+
+    const savedCommande = await newCommande.save();
+    res.status(201).json(savedCommande);
+  } catch (err) {
+    console.error("Erreur backend :", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+
+// GET /api/restaurant/:id/commandes
+router.get("/:id/commandes", async (req, res) => {
+  try {
+    const commandes = await Commande.find({ restaurant: req.params.id }).populate("restaurant");
+    res.status(200).json(commandes);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", error: err });
+  }
+});
+
+// PUT /api/restaurant/:restaurantId/commandes/:commandeId/status
+router.put("/:restaurantId/commandes/:commandeId/status", async (req, res) => {
+  try {
+    const { commandeId } = req.params;
+    const { status } = req.body;
+
+    const updated = await Commande.findByIdAndUpdate(
+      commandeId,
+      { status },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    console.error("Erreur update status :", err);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 });
 

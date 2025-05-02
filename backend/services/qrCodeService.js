@@ -7,7 +7,7 @@ const Etablissement = require("../models/Etablissement");
 async function generateQRCode(idEtablissement) {
     try {
         const qrCodeId = uuidv4(); // Génère un identifiant unique
-        const url = `${apiUrl}/api/scan/${qrCodeId}`; // URL locale
+        const url = `https://outam.onrender.com/api/scan/${qrCodeId}`; // URL locale
 
         // Génération de l’image QR Code
         const qrCodeImage = await QRCode.toDataURL(url);

@@ -1,10 +1,35 @@
 const mongoose = require("mongoose");
 
 const commandeSchema = new mongoose.Schema({
-    idEtablissement: { type: mongoose.Schema.Types.ObjectId, ref: "Etablissement", required: true },
-    dateCommande: { type: Date, default: Date.now },
-    statut: { type: String, enum: ["En attente", "En cours", "Livrée", "Annulée"], required: true },
-    total: { type: Number, required: true }
+  restaurant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurant",
+    required: true,
+  },
+  dish: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Dish",
+    required: true,
+  },
+  extras: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Extra",
+    },
+  ],
+  total: {
+    type: Number,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["en attente", "en cuisine", "Prête"],
+    default: "en attente",
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Commande", commandeSchema);
