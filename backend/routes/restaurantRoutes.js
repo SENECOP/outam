@@ -194,31 +194,54 @@ router.post('/register', async (req, res) => {
     }
 });
 router.get('/commercant/me', async (req, res) => {
-    try {
-        const token = req.headers.authorization?.split(' ')[1]; // Extraire le token depuis l'en-tête
-        if (!token) {
-            return res.status(401).json({ message: 'Token manquant' });
-        }
+  try {
+      // 1. Vérification de la présence du token
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          return res.status(401).json({ message: 'Authentification requise' });
+      }
 
-        const decoded = jwt.verify(token, JWT_SECRET); // Vérifier et décoder le token
-        const restaurant = await Restaurant.findById(decoded.id); // Trouver le restaurant par l'ID du token
-        if (!restaurant) {
-            return res.status(404).json({ message: 'Restaurant non trouvé' });
-        }
+      const token = authHeader.split(' ')[1];
+      
+      // 2. Vérification que JWT_SECRET est bien défini
+      if (!process.env.JWT_SECRET) {
+          console.error('JWT_SECRET non défini dans les variables d\'environnement');
+          return res.status(500).json({ message: 'Erreur de configuration serveur' });
+      }
 
-        // Ajouter restaurantId à la réponse
-        const commercantInfo = {
-            name: restaurant.commercantInfo.name,
-            email: restaurant.commercantInfo.email,
-            photoDeProfil: restaurant.commercantInfo.photoDeProfil,
-            restaurantId: restaurant._id  // Ajoutez ici le restaurantId
-        };
+      // 3. Vérification et décodage du token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      // 4. Récupération du restaurant
+      const restaurant = await Restaurant.findById(decoded.id);
+      if (!restaurant) {
+          return res.status(404).json({ message: 'Restaurant non trouvé' });
+      }
 
-        res.json(commercantInfo);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
+      // 5. Préparation de la réponse
+      const commercantInfo = {
+          name: restaurant.commercantInfo.name,
+          email: restaurant.commercantInfo.email,
+          photoDeProfil: restaurant.commercantInfo.photoDeProfil,
+          restaurantId: restaurant._id
+      };
+
+      res.json(commercantInfo);
+  } catch (error) {
+      console.error('Erreur dans /commercant/me:', error);
+      
+      // Gestion spécifique des erreurs JWT
+      if (error instanceof jwt.JsonWebTokenError) {
+          if (error.message === 'invalid signature') {
+              return res.status(401).json({ message: 'Token invalide' });
+          }
+          if (error.message === 'jwt expired') {
+              return res.status(401).json({ message: 'Token expiré' });
+          }
+      }
+      
+      res.status(500).json({ message: 'Erreur serveur' });
+  }
 });
 
 
