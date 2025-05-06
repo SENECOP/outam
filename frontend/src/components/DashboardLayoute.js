@@ -5,7 +5,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayoute({ children }) {
   const { user, currentRestaurant } = useAppContext();
   const navigate = useNavigate();
   const [cookies, , removeCookie] = useCookies(["accessToken", "refreshToken"]);
@@ -129,11 +129,14 @@ export default function DashboardLayout({ children }) {
       <div className={`flex flex-col flex-1 overflow-auto transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>
         {/* Header */}
         <header className="bg-white shadow p-4 flex items-center relative z-10">
-          <button onClick={toggleSidebar} className="text-gray-600 focus:outline-none z-20">
-            <Menu size={24} />
-          </button>
-          <h1 className="text-xl font-bold ml-4">{currentRestaurant?.name || "Restaurant"}</h1>
-          <div className="ml-auto flex items-center space-x-4">
+        <button onClick={toggleSidebar} className="text-gray-600 focus:outline-none z-20">
+  <Menu size={24} />
+</button>
+
+<Home size={30} className="text-black ml-6 mr-2" />
+
+<h1 className="text-xl font-bold">{currentRestaurant?.name || "Restaurant"}</h1>
+    <div className="ml-auto flex items-center space-x-4">
             <img
               src="https://outam.onrender.com/assets/logo.png"
               alt="Logo"

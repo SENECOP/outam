@@ -43,8 +43,7 @@ const LoginRestaurant = () => {
       if (userResponse.data.restaurantId) {
         console.log('ID du restaurant:', userResponse.data.restaurantId);
 
-        const restaurantResponse = await axios.get(
-          `${apiUrl}/api/restaurant/${userResponse.data.restaurantId}`,
+        const restaurantResponse = await axios.get(`${apiUrl}/api/restaurant/${userResponse.data.restaurantId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

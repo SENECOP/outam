@@ -40,7 +40,7 @@ const DishDetail = () => {
     };
 
     fetchExtras();
-  }, []);
+  }, [apiUrl]); // ✅ correction ici
 
   useEffect(() => {
     const fetchDish = async () => {
@@ -61,7 +61,7 @@ const DishDetail = () => {
     if (restaurantId && dishId) {
       fetchDish();
     }
-  }, [restaurantId, dishId]);
+  }, [apiUrl, restaurantId, dishId]); // ✅ correction ici
 
   const handleSelectExtra = (extra) => {
     setExtrasSelected((prev) => {
@@ -177,7 +177,6 @@ const DishDetail = () => {
           </div>
         )}
 
-        {/* Bouton commander avec restaurantId inclus */}
         <button
           className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md"
           onClick={() =>
@@ -185,7 +184,7 @@ const DishDetail = () => {
               state: {
                 dish,
                 extrasSelected,
-                restaurantId, // <- passé ici
+                restaurantId,
               },
             })
           }

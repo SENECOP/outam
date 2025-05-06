@@ -3,6 +3,8 @@ import { LayoutDashboard, ShoppingCart, BarChart, User } from 'lucide-react';
 import Header from '../components/Header';
 import { useAppContext } from '../context/AppContext'; // Import du contexte
 import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '../components/DashboardLayout';
+import DashboardLayoute from '../components/DashboardLayoute';
 
 export default function HomeRestauran() {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -88,10 +90,13 @@ export default function HomeRestauran() {
   ];
 
   return (
+    <DashboardLayoute>
+    
     <div className="min-h-screen w-full bg-gray-900 flex">
-      <div className="w-full bg-gray-100 rounded-lg shadow-lg">
+      <div className="w-full bg-gray-100">
         {/* Header */}
-        <Header toggleSidebar={toggleSidebar} />
+
+        {/* <Header toggleSidebar={toggleSidebar} /> */}
 
         {/* Contenu principal */}
         <div className="p-6 mx-auto max-w-3xl lg:max-w-4xl xl:max-w-6xl">
@@ -139,5 +144,8 @@ export default function HomeRestauran() {
 </div>
       </div>
     </div>
+
+    </DashboardLayoute>
+    
   );
 }
