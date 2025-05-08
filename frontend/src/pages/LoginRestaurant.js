@@ -141,4 +141,4 @@ const LoginRestaurant = () => {
   );
 };
 
-export default LoginRestaurant;
+export default LoginRestaurant;  

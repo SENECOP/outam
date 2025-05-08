@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("all"); // ✅ filtre local
   const { restaurantId } = useParams();
   const apiUrl = process.env.REACT_APP_API_URL;
-
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -58,35 +58,30 @@ const OrdersList = () => {
     }
   };
 
+  // ✅ Applique le filtre
+  const filteredOrders =
+    filterStatus === "all"
+      ? orders
+      : orders.filter((order) => order.status === filterStatus);
+
   return (
     <DashboardLayout>
       <main className="flex-1 overflow-y-auto p-4">
-        {/* Navigation en haut */}
+        {/* Navigation filtres en haut */}
         <nav className="bg-white shadow-sm rounded-lg mb-6 p-4 flex space-x-4">
-          <Link
-            to="/gerermenu"
-            className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50"
-          >
-           Gestion des commandes
-          </Link>
-          <Link
-            to="/menu/create"
-            className="text-gray-600 hover:text-gray-900 px-3 py-2"
-          >
-            En attente
-          </Link>
-          <Link
-            to="/qrcode"
-            className="text-gray-600 hover:text-gray-900 px-3 py-2"
-          >
-            En cuisine
-          </Link>
-          <Link
-            to="/menus-actifs"
-            className="text-gray-600 hover:text-gray-900 px-3 py-2"
-          >
-            Prete
-          </Link>
+          {["all", "en attente", "en cuisine", "Prête"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-3 py-2 rounded-lg font-medium ${
+                filterStatus === status
+                  ? "bg-blue-500 text-white"
+                  : "bg-blue-50 text-blue-600"
+              }`}
+            >
+              {status === "all" ? "Gestion des commandes" : status}
+            </button>
+          ))}
         </nav>
 
         {/* Contenu principal */}
@@ -95,6 +90,8 @@ const OrdersList = () => {
 
           {loading ? (
             <p>Chargement des commandes...</p>
+          ) : filteredOrders.length === 0 ? (
+            <p>Aucune commande trouvée pour ce statut.</p>
           ) : (
             <table className="w-full bg-white shadow rounded">
               <thead>
@@ -106,7 +103,7 @@ const OrdersList = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr
                     key={order._id}
                     className="border-b hover:bg-gray-50"

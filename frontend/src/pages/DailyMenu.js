@@ -7,16 +7,36 @@ const DesktopDailyMenu = () => {
   const { restaurantId } = useParams();
   const [activeMenu, setActiveMenu] = useState(null);
   const [dishes, setDishes] = useState([]);
-  const [dynamicCategories, setDynamicCategories] = useState([]); // 🔄 Catégories dynamiques
+  const [dynamicCategories, setDynamicCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [publicites, setPublicites] = useState([]);
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
+  const { currentRestaurant } = useAppContext();
 
-  const { currentRestaurant } = useAppContext(); // ❌ on ne récupère plus les catégories du contexte
+  useEffect(() => {
+    const fetchPublicites = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/publicites");
+        console.log("Publicités récupérées:", res.data); // Vérifie les données reçues
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setPublicites(res.data);
+        } else {
+          console.log("Aucune publicité trouvée dans la réponse");
+        }
+      } catch (err) {
+        console.error("Erreur lors du chargement des publicités:", err);
+      }
+    };
+  
+    fetchPublicites();
+  }, []);
+  
 
+  // 🔹 Charger les plats
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,17 +51,12 @@ const DesktopDailyMenu = () => {
           return;
         }
 
-        const menuRes = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/menus/active`, {
-          timeout: 5000,
-          headers: { "Cache-Control": "no-cache" },
-        });
-
+        const menuRes = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/menus/active`);
         if (menuRes.data?.menu) {
           setActiveMenu(menuRes.data.menu);
           const dishesData = menuRes.data.menu.dishes || [];
           setDishes(dishesData);
 
-          // 🔄 Extraire les catégories uniques depuis les plats
           const uniqueCategories = Array.from(
             new Set(dishesData.map((dish) => dish.category).filter(Boolean))
           );
@@ -49,7 +64,6 @@ const DesktopDailyMenu = () => {
         } else {
           setError(menuRes.data?.message || "Aucun menu actif disponible.");
         }
-
       } catch (err) {
         setError("Impossible de charger les données du menu.");
       } finally {
@@ -58,16 +72,11 @@ const DesktopDailyMenu = () => {
     };
 
     fetchData();
-
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000);
-
+    const interval = setInterval(() => fetchData(), 10000);
     return () => clearInterval(interval);
   }, [restaurantId]);
 
-  const fullCategoryList = ["Tous", ...dynamicCategories]; // ✅ Liste des catégories dynamiques
-
+  const fullCategoryList = ["Tous", ...dynamicCategories];
   const filteredDishes = dishes.filter(
     (dish) =>
       (selectedCategory === "Tous" || dish.category === selectedCategory) &&
@@ -83,9 +92,7 @@ const DesktopDailyMenu = () => {
   }
 
   if (error) {
-    return (
-      <div className="p-4 text-center text-red-500 text-sm">{error}</div>
-    );
+    return <div className="p-4 text-center text-red-500 text-sm">{error}</div>;
   }
 
   return (
@@ -116,7 +123,7 @@ const DesktopDailyMenu = () => {
         />
       </div>
 
-      {/* 🔘 Catégories dynamiques */}
+      {/* 🔘 Catégories */}
       <div className="flex flex-wrap gap-2 mb-6">
         {fullCategoryList.map((category) => (
           <button
@@ -133,6 +140,7 @@ const DesktopDailyMenu = () => {
         ))}
       </div>
 
+      {/* 🍽 Liste des plats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredDishes.length > 0 ? (
           filteredDishes.map((dish) => (
@@ -149,7 +157,8 @@ const DesktopDailyMenu = () => {
                     className="absolute top-0 left-0 w-full h-full object-cover"
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/300x225?text=Image+Manquante";
-                      e.target.className = "absolute top-0 left-0 w-full h-full object-contain p-4 bg-gray-100";
+                      e.target.className =
+                        "absolute top-0 left-0 w-full h-full object-contain p-4 bg-gray-100";
                     }}
                   />
                 ) : (
@@ -160,15 +169,11 @@ const DesktopDailyMenu = () => {
               </div>
 
               <div className="p-3 space-y-1">
-                <h3 className="text-base font-semibold truncate">
-                  {dish.title || "Sans titre"}
-                </h3>
+                <h3 className="text-base font-semibold truncate">{dish.title || "Sans titre"}</h3>
                 {dish.description && (
                   <p className="text-sm text-gray-600 line-clamp-2">{dish.description}</p>
                 )}
-                <p className="text-yellow-600 text-sm font-bold">
-                  {dish.price} Fcfa
-                </p>
+                <p className="text-yellow-600 text-sm font-bold">{dish.price} Fcfa</p>
                 <p className="text-xs text-gray-500">{dish.category}</p>
               </div>
             </div>
@@ -179,6 +184,32 @@ const DesktopDailyMenu = () => {
           </div>
         )}
       </div>
+
+      {/* 📢 Publicités depuis localhost */}
+      {publicites.length > 0 && (
+  <div className="my-8">
+    <h3 className="text-lg font-bold mb-4 text-center">Publicités</h3>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {publicites.map((pub) => (
+        <div key={pub._id} className="bg-white shadow rounded-lg overflow-hidden">
+          <img
+            src={pub.imageUrl}
+            alt={pub.titre}
+            className="w-full h-40 object-cover"
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/400x150?text=Image+non+trouvée";
+            }}
+          />
+          <div className="p-4">
+            <h4 className="font-semibold">{pub.titre}</h4>
+            <p className="text-sm text-gray-600">{pub.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
 
       <div className="mt-8 border-t pt-4 text-center text-xs text-gray-400">
         <p>OUTAM</p>

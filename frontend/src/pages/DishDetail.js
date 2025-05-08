@@ -105,6 +105,33 @@ const DishDetail = () => {
   }
 
   if (!dish) return null;
+  const sendOrder = async () => {
+    if (!dish || !restaurantId) {
+      alert("Les informations du plat ou du restaurant sont manquantes.");
+      return;
+    }
+  
+    try {
+      const dishId = dish._id;
+      const extrasIds = extrasSelected.map((extra) => extra._id);
+      const extrasTotal = extrasSelected.reduce((sum, extra) => sum + extra.price, 0);
+      const total = dish.price + extrasTotal;
+  
+      await axios.post(`${apiUrl}/api/restaurant/${restaurantId}/commandes`, {
+        dishId,
+        extrasIds,
+        total,
+      });
+  
+      alert("Commande envoyée avec succès !");
+      navigate(`/menu/${restaurantId}`); // ✅ redirection vers DesktopDailyMenu
+    } catch (error) {
+      console.error("Erreur lors de l'envoi de la commande :", error);
+      alert("Une erreur est survenue lors de l'envoi de la commande.");
+    }
+  };
+  
+  
 
   return (
     <div className="relative max-w-md mx-auto bg-white min-h-screen rounded-t-3xl overflow-hidden shadow-lg">
@@ -177,20 +204,13 @@ const DishDetail = () => {
           </div>
         )}
 
-        <button
-          className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md"
-          onClick={() =>
-            navigate("/order-summary", {
-              state: {
-                dish,
-                extrasSelected,
-                restaurantId,
-              },
-            })
-          }
-        >
-          Commander
-        </button>
+<button
+  className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md"
+  onClick={sendOrder}
+>
+  Commander
+</button>
+
       </div>
     </div>
   );
