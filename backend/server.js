@@ -20,6 +20,7 @@ const etablissementRoutes = require("./routes/etablissement");
 const qrCodeRoutes = require("./routes/qrCodeRoutes");
 const restaurantRoutes = require('./routes/restaurantRoutes');
 const extrasRoutes = require('./routes/extrasRoutes');
+const publicite = require('./routes/publicite');
 
 
 
@@ -72,6 +73,8 @@ app.use("/api/etablissements", etablissementRoutes);
 app.use("/api", qrCodeRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/extras', extrasRoutes);
+app.use("/api/publicites", require("./routes/publicite"));
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
