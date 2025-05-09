@@ -18,6 +18,8 @@ export default function RestaurantDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [addError, setAddError] = useState(null);
+  const { categories } = useAppContext(); // Ajoutez ceci avec les autres imports du contexte
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const [newDish, setNewDish] = useState({
@@ -77,33 +79,54 @@ export default function RestaurantDashboard() {
 
   const handleAddDish = async (e) => {
     e.preventDefault();
-    if (!restaurantId || !activeMenu?._id) return;
+    setAddError(null);
+    
+    if (!restaurantId || !activeMenu?._id) {
+      setAddError('Restaurant ou menu non sélectionné');
+      return;
+    }
+
+    if (!newDish.title || !newDish.price) {
+      setAddError('Le titre et le prix sont obligatoires');
+      return;
+    }
 
     const formData = new FormData();
     formData.append('title', newDish.title);
     formData.append('description', newDish.description);
     formData.append('price', newDish.price);
     formData.append('category', newDish.category);
-    formData.append('menuId', activeMenu._id);
     if (newDish.image) {
       formData.append('image', newDish.image);
     }
 
     try {
-      const res = await fetch(`${apiUrl}/api/dish/${restaurantId}`, {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(
+        `${apiUrl}/api/restaurant/${restaurantId}/menus/${activeMenu._id}/dishes`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
 
-      if (!res.ok) throw new Error('Erreur lors de l’ajout');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Erreur lors de l\'ajout');
+      }
 
       const data = await res.json();
       setShouldRefresh((prev) => !prev);
-      setNewDish({ title: '', description: '', price: '', category: '', image: null });
+      setNewDish({ 
+        title: '', 
+        description: '', 
+        price: '', 
+        category: '', 
+        image: null 
+      });
       setShowAddForm(false);
     } catch (err) {
-      console.error(err);
-      alert("Erreur lors de l'ajout du plat");
+      console.error('Erreur:', err);
+      setAddError(err.message || "Erreur lors de l'ajout du plat");
     }
   };
 
@@ -118,7 +141,7 @@ export default function RestaurantDashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
       </div>
     );
   }
@@ -138,8 +161,8 @@ export default function RestaurantDashboard() {
           <main className="flex-1 overflow-y-auto p-4 ml-1">
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center mb-6">
-                <div className="bg-blue-100 p-3 rounded-full mr-4 shadow-md">
-                  <BookOpen size={24} className="text-blue-500" />
+                <div className="bg-green-100 p-3 rounded-full mr-4 shadow-md">
+                  <BookOpen size={24} className="text-green-500" />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {activeMenu ? activeMenu.name : 'Menu du restaurant'}
@@ -153,7 +176,7 @@ export default function RestaurantDashboard() {
 
               <nav className="bg-white shadow-sm rounded-lg mb-6 p-4">
                 <div className="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0">
-                  <button className="font-medium text-blue-600 px-3 py-2 rounded-lg bg-blue-50">
+                  <button className="font-medium text-green-600 px-3 py-2 rounded-lg bg-green-50">
                     Menu actif
                   </button>
                   <Link to={`/gerermenu/${id}`} className="text-gray-600 hover:text-gray-800 px-3 py-2">Gérer menu</Link>
@@ -164,21 +187,23 @@ export default function RestaurantDashboard() {
                 </div>
               </nav>
 
-              {/* Filtres + Ajouter un plat */}
               <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <div className="flex items-center space-x-2 mb-2 md:mb-0">
                   <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700">Filtres :</label>
                   <select
                     id="categoryFilter"
-                    className="bg-green-500 rounded-md px-3 py-1 text-sm"
+                    className="bg-green-500 text-white rounded-md px-3 py-1 text-sm"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    <option value="">Catégories</option>
+                    <option value="" className="text-black">Catégories</option>
                     {availableCategories.map((cat, idx) => (
-                      <option key={idx} value={cat}>{cat}</option>
+                      <option key={idx} value={cat} className="text-black">
+                        {cat}
+                      </option>
                     ))}
                   </select>
+
                 </div>
                 <button
                   onClick={() => setShowAddForm((prev) => !prev)}
@@ -188,42 +213,62 @@ export default function RestaurantDashboard() {
                 </button>
               </div>
 
-              {/* Formulaire d'ajout de plat */}
               {showAddForm && (
                 <form onSubmit={handleAddDish} className="bg-white p-4 rounded shadow mb-6 space-y-4">
+                  {addError && <div className="text-red-500 mb-2">{addError}</div>}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" placeholder="Titre du plat" required
+                    <input 
+                      type="text" 
+                      placeholder="Titre du plat*" 
+                      required
                       value={newDish.title}
                       onChange={(e) => setNewDish({ ...newDish, title: e.target.value })}
                       className="border px-3 py-2 rounded"
                     />
-                    <input type="number" placeholder="Prix (FCFA)" required
+                    <input 
+                      type="number" 
+                      placeholder="Prix (FCFA)*" 
+                      required
                       value={newDish.price}
                       onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
                       className="border px-3 py-2 rounded"
                     />
-                    <input type="text" placeholder="Catégorie"
+                    <select
+                      required
                       value={newDish.category}
                       onChange={(e) => setNewDish({ ...newDish, category: e.target.value })}
                       className="border px-3 py-2 rounded"
-                    />
-                    <input type="file" accept="image/*"
+                    >
+                      <option value="">Sélectionnez une catégorie</option>
+                      {categories.map((cat, index) => (
+                        <option key={index} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    <input 
+                      type="file" 
+                      accept="image/*"
                       onChange={(e) => setNewDish({ ...newDish, image: e.target.files[0] })}
                       className="border px-3 py-2 rounded"
                     />
                   </div>
-                  <textarea placeholder="Description" rows={3}
+                  <textarea 
+                    placeholder="Description" 
+                    rows={3}
                     value={newDish.description}
                     onChange={(e) => setNewDish({ ...newDish, description: e.target.value })}
                     className="border px-3 py-2 rounded w-full"
                   />
-                  <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                  <button 
+                    type="submit" 
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  >
                     Ajouter le plat
                   </button>
                 </form>
               )}
 
-              {/* Liste des plats */}
               <div className="bg-white shadow-sm rounded-lg overflow-hidden">
                 {(selectedCategory
                   ? menuItems.filter(item => item.category === selectedCategory)
@@ -251,7 +296,7 @@ export default function RestaurantDashboard() {
                             <div>
                               <h1 className="font-semibold text-gray-800">
                                 {item.title || 'Titre non disponible'}
-                                <span className="text-blue-600 ml-2">
+                                <span className="text-green-600 ml-2">
                                   {item.price ? `${item.price} FCFA` : 'Prix non disponible'}
                                 </span>
                               </h1>
@@ -263,7 +308,7 @@ export default function RestaurantDashboard() {
                                 {expandedItems[itemId] ? (
                                   <>
                                     {item.description || 'Aucune description disponible'}
-                                    <button className="text-blue-500 ml-2 text-sm" onClick={() => toggleDescription(itemId)}>Voir moins</button>
+                                    <button className="text-green-500 ml-2 text-sm" onClick={() => toggleDescription(itemId)}>Voir moins</button>
                                   </>
                                 ) : (
                                   <>
@@ -271,7 +316,7 @@ export default function RestaurantDashboard() {
                                       ? item.description.split(' ').slice(0, 20).join(' ') + '...'
                                       : item.description || 'Aucune description disponible')}
                                     {(item.description?.split(' ').length > 20) && (
-                                      <button className="text-blue-500 ml-2 text-sm" onClick={() => toggleDescription(itemId)}>Voir plus</button>
+                                      <button className="text-green-500 ml-2 text-sm" onClick={() => toggleDescription(itemId)}>Voir plus</button>
                                     )}
                                   </>
                                 )}

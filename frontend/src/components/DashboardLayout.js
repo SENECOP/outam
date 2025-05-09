@@ -132,6 +132,8 @@ export default function DashboardLayout({ children }) {
           <button onClick={toggleSidebar} className="text-gray-600 focus:outline-none z-20">
             <Menu size={24} />
           </button>
+          <Home size={30} className="text-black ml-6 mr-2" />
+
           <h1 className="text-xl font-bold ml-4">{currentRestaurant?.name || "Restaurant"}</h1>
           <div className="ml-auto flex items-center space-x-4">
             <img

@@ -102,10 +102,11 @@ export default function HomeRestauran() {
         <div className="p-6 mx-auto max-w-3xl lg:max-w-4xl xl:max-w-6xl">
         <div className="flex items-center gap-4 mb-4">
         <img
+  
   src={
-    user?.commercantInfo?.photoDeProfil?.startsWith("http")
-      ? user.commercantInfo.photoDeProfil
-      : `${apiUrl}/assets/${user.commercantInfo?.photoDeProfil || "default-avatar.jpg"}`
+    user?.photoDeProfil?.startsWith("http")
+      ? user.photoDeProfil
+      : `https://outam.onrender.com/assets/${user?.photoDeProfil || 'user.jpeg'}`
   }
   alt="Profil"
   className="w-12 h-12 rounded-lg object-cover"
