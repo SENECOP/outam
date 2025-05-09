@@ -859,13 +859,14 @@ router.post("/:restaurantId/commandes", async (req, res) => {
 // GET /api/restaurant/:id/commandes
 router.get("/:id/commandes", async (req, res) => {
   try {
-    const commandes = await Commande.find({ restaurant: req.params.id }).populate("restaurant");
+    const commandes = await Commande.find({ restaurant: req.params.id })
+      .populate("restaurant")
+      .populate("dish", "_id name"); // Peuple seulement _id et name pour l'efficacité
     res.status(200).json(commandes);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", error: err });
   }
 });
-
 // PUT /api/restaurant/:restaurantId/commandes/:commandeId/status
 router.put("/:restaurantId/commandes/:commandeId/status", async (req, res) => {
   try {
@@ -884,7 +885,63 @@ router.put("/:restaurantId/commandes/:commandeId/status", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+router.get("/:id/commandes/dish-counts", async (req, res) => {
+  try {
+    const results = await Commande.aggregate([
+      {
+        $match: {
+          restaurant: new mongoose.Types.ObjectId(req.params.id)
+        }
+      },
+      {
+        $group: {
+          _id: "$dish",
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $lookup: {
+          from: "dishes",
+          localField: "_id",
+          foreignField: "_id",
+          as: "dish"
+        }
+      },
+      { $unwind: "$dish" },
+      {
+        $project: {
+          dishId: "$dish._id",
+          dishName: "$dish.name",
+          count: 1
+        }
+      }
+    ]);
 
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur lors du comptage des commandes." });
+  }
+});
 
+router.get("/:id/commandes/dish-counts", async (req, res) => {
+  try {
+    const results = await Commande.aggregate([
+      { $match: { restaurant: mongoose.Types.ObjectId(req.params.id) } },
+      { $group: { _id: "$dish", count: { $sum: 1 } } },
+      { 
+        $project: { 
+          dishId: "$_id",
+          count: 1,
+          _id: 0 
+        } 
+      }
+    ]);
 
+    res.json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
 module.exports = router;
