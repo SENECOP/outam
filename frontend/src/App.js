@@ -21,6 +21,7 @@ import Analyses from './pages/Analyses';
 import OrderSummary from './pages/OrderSummary';
 import OrdersList from './pages/OrdersList';
 import CartPage from './pages/CartPage';
+// import superAdminpageage from './pages/superadmin/superAdminpage';
 
 function App() {
   return (
@@ -52,7 +53,7 @@ function App() {
           <Route path="/order-summary" element={<OrderSummary />} />
           <Route path="/restaurant/:restaurantId/orders" element={<OrdersList />} />
           <Route path="/cart" element={<CartPage />} />
-
+          {/* <Route path="/dashboard" element={<superAdminpage />} /> */}
 
   
           </Routes>

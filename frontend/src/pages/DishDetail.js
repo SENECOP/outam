@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ChevronLeft, Plus, ShoppingBag } from "lucide-react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const DishDetail = () => {
   const navigate = useNavigate();
@@ -14,33 +17,6 @@ const DishDetail = () => {
   const [extras, setExtras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const syncCartCount = () => {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const total = cart.reduce((sum, item) => sum + item.quantity, 0);
-      setCartCount(total);
-    };
-
-    syncCartCount();
-    window.addEventListener("storage", syncCartCount);
-    return () => {
-      window.removeEventListener("storage", syncCartCount);
-    };
-  }, []);
-
-  useEffect(() => {
-    const fetchExtras = async () => {
-      try {
-        const res = await axios.get(`${apiUrl}/api/extras/showextras`);
-        setExtras(res.data);
-      } catch (err) {
-        console.error("Erreur lors du chargement des extras :", err);
-      }
-    };
-
-    fetchExtras();
-  }, [apiUrl]); // ✅ correction ici
 
   useEffect(() => {
     const fetchDish = async () => {
@@ -61,7 +37,19 @@ const DishDetail = () => {
     if (restaurantId && dishId) {
       fetchDish();
     }
-  }, [apiUrl, restaurantId, dishId]); // ✅ correction ici
+  }, [apiUrl, restaurantId, dishId]);
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    adaptiveHeight: true,
+  };
 
   const handleSelectExtra = (extra) => {
     setExtrasSelected((prev) => {
@@ -92,6 +80,26 @@ const DishDetail = () => {
     window.dispatchEvent(new Event("storage"));
   };
 
+  // Envoie l'utilisateur vers la page OrderSummary avec les détails de la commande
+  const handleOrder = () => {
+    if (!dish || !restaurantId) {
+      alert("Erreur: Plat ou restaurant manquant");
+      return;
+    }
+
+    const extrasTotal = extrasSelected.reduce((sum, extra) => sum + extra.price, 0);
+    const total = dish.price + extrasTotal;
+
+    navigate("/order-summary", {
+      state: {
+        dish,
+        extrasSelected,
+        restaurantId,
+        total
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -105,50 +113,42 @@ const DishDetail = () => {
   }
 
   if (!dish) return null;
-  const sendOrder = async () => {
-    if (!dish || !restaurantId) {
-      alert("Les informations du plat ou du restaurant sont manquantes.");
-      return;
-    }
-  
-    try {
-      const dishId = dish._id;
-      const extrasIds = extrasSelected.map((extra) => extra._id);
-      const extrasTotal = extrasSelected.reduce((sum, extra) => sum + extra.price, 0);
-      const total = dish.price + extrasTotal;
-  
-      await axios.post(`${apiUrl}/api/restaurant/${restaurantId}/commandes`, {
-        dishId,
-        extrasIds,
-        total,
-      });
-  
-      alert("Commande envoyée avec succès !");
-      navigate(`/menu/${restaurantId}`); // ✅ redirection vers DesktopDailyMenu
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de la commande :", error);
-      alert("Une erreur est survenue lors de l'envoi de la commande.");
-    }
-  };
-  
-  
 
   return (
     <div className="relative max-w-md mx-auto bg-white min-h-screen rounded-t-3xl overflow-hidden shadow-lg">
       <div className="relative">
-        <img
-          src={
-            dish.image?.startsWith("http")
-              ? dish.image
-              : `${apiUrl}${dish.image}`
-          }
-          alt={dish.title}
-          className="w-full h-80 object-cover rounded-b-3xl"
-          onError={(e) => {
-            e.target.src = "https://via.placeholder.com/400x200?text=Image";
-          }}
-        />
+        {/* Affichage d'images avec slider si plusieurs images */}
+        {Array.isArray(dish.image) && dish.image.length > 1 ? (
+          <Slider {...sliderSettings}>
+            {dish.image.map((img, index) => (
+              <div key={index}>
+                <img
+                  src={typeof img === "string" && img.startsWith("http") ? img : `${apiUrl}${img}`}
+                  alt={`${dish.title} ${index + 1}`}
+                  className="w-full h-80 object-cover rounded-b-3xl"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/400x200?text=Image";
+                  }}
+                />
+              </div>
+            ))}
+          </Slider>
+        ) : (
+          <img
+            src={
+              dish.image && typeof dish.image === "string" && dish.image.startsWith("http")
+                ? dish.image
+                : `${apiUrl}${dish.image}`
+            }
+            alt={dish.title}
+            className="w-full h-80 object-cover rounded-b-3xl"
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/400x200?text=Image";
+            }}
+          />
+        )}
 
+        {/* Navigation */}
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 bg-white rounded-full p-2 shadow hover:scale-105 transition"
@@ -161,11 +161,6 @@ const DishDetail = () => {
           className="absolute top-4 right-4 bg-white rounded-full p-2 shadow hover:scale-105 transition"
         >
           <ShoppingBag size={20} />
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
         </button>
       </div>
 
@@ -183,6 +178,7 @@ const DishDetail = () => {
         <p className="text-lg text-yellow-600 font-semibold mb-4">{dish.price} Fcfa</p>
         <p className="text-sm text-gray-600 leading-relaxed">{dish.description}</p>
 
+        {/* Extras */}
         {extras.length > 0 && (
           <div className="mt-6">
             <h3 className="text-md font-semibold text-gray-700 mb-2">Extras disponibles</h3>
@@ -204,13 +200,12 @@ const DishDetail = () => {
           </div>
         )}
 
-<button
-  className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md"
-  onClick={sendOrder}
->
-  Commander
-</button>
-
+        <button
+          className="mt-8 w-full bg-yellow-500 hover:bg-yellow-600 transition text-white font-bold py-3 rounded-xl shadow-md"
+          onClick={handleOrder}
+        >
+          Commander
+        </button>
       </div>
     </div>
   );

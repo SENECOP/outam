@@ -279,18 +279,19 @@ export default function RestaurantDashboard() {
                     <div key={itemId} className="border-b last:border-b-0">
                       <div className="p-4 flex items-start">
                         <img
-                          src={
-                            item.image?.startsWith('http')
-                              ? item.image
-                              : `${apiUrl}${item.image}`
-                          }
-                          alt={item.title || 'Image non disponible'}
-                          className="w-16 h-16 rounded-md object-cover mr-4"
-                          onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/64';
-                            e.target.onerror = null;
-                          }}
-                        />
+                            src={
+                              item.image?.[0]?.startsWith('http')
+                                ? item.image[0]
+                                : `${apiUrl}${item.image?.[0] || ''}`
+                            }
+                            alt={item.title || 'Image non disponible'}
+                            className="w-16 h-16 rounded-md object-cover mr-4"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/64';
+                              e.target.onerror = null;
+                            }}
+                          />
+
                         <div className="flex-1">
                           <div className="flex justify-between items-start">
                             <div>

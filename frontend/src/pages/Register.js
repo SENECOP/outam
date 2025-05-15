@@ -68,7 +68,7 @@ const [dishCounts, setDishCounts] = useState([]);
 useEffect(() => {
   const fetchDishCounts = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/restaurant/${restaurantId}/commandes/dish-counts`);
+      const res = await axios.get(`${apiUrl}/api/restaurant/${restaurantId}/commandes/dish-counts`);
       setDishCounts(res.data);
     } catch (err) {
       console.error(err);

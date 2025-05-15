@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const DesktopDailyMenu = () => {
   const { restaurantId } = useParams();
@@ -17,15 +20,55 @@ const DesktopDailyMenu = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
   const { currentRestaurant } = useAppContext();
 
+  // Configuration du slider
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    adaptiveHeight: true
+  };
+const pubSliderSettings = {
+  dots: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  arrows: true,
+  autoplay: true,
+  autoplaySpeed: 4000,
+  responsive: [
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 1
+      }
+    },
+    {
+      breakpoint: 1024,
+      settings: {
+        slidesToShow: 2
+      }
+    },
+    {
+      breakpoint: 1280,
+      settings: {
+        slidesToShow: 3
+      }
+    }
+  ]
+};
+
   useEffect(() => {
     const fetchPublicites = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/publicites");
-        console.log("Publicités récupérées:", res.data); // Vérifie les données reçues
+        const res = await axios.get(`${apiUrl}/api/publicites`);
         if (Array.isArray(res.data) && res.data.length > 0) {
           setPublicites(res.data);
-        } else {
-          console.log("Aucune publicité trouvée dans la réponse");
         }
       } catch (err) {
         console.error("Erreur lors du chargement des publicités:", err);
@@ -33,10 +76,8 @@ const DesktopDailyMenu = () => {
     };
   
     fetchPublicites();
-  }, []);
-  
+  }, [apiUrl]);
 
-  // 🔹 Charger les plats
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -74,7 +115,7 @@ const DesktopDailyMenu = () => {
     fetchData();
     const interval = setInterval(() => fetchData(), 10000);
     return () => clearInterval(interval);
-  }, [restaurantId]);
+  }, [restaurantId, apiUrl]);
 
   const fullCategoryList = ["Tous", ...dynamicCategories];
   const filteredDishes = dishes.filter(
@@ -123,7 +164,7 @@ const DesktopDailyMenu = () => {
         />
       </div>
 
-      {/* 🔘 Catégories */}
+      {/* Catégories */}
       <div className="flex flex-wrap gap-2 mb-6">
         {fullCategoryList.map((category) => (
           <button
@@ -140,7 +181,7 @@ const DesktopDailyMenu = () => {
         ))}
       </div>
 
-      {/* 🍽 Liste des plats */}
+      {/* Liste des plats avec slider */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredDishes.length > 0 ? (
           filteredDishes.map((dish) => (
@@ -149,20 +190,25 @@ const DesktopDailyMenu = () => {
               className="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden cursor-pointer"
               onClick={() => navigate(`/restaurant/${restaurantId}/dish/${dish._id}`)}
             >
-              <div className="relative pt-[75%] overflow-hidden">
-                {dish.image ? (
-                  <img
-                    src={dish.image.startsWith("http") ? dish.image : `${apiUrl}${dish.image}`}
-                    alt={dish.title}
-                    className="absolute top-0 left-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/300x225?text=Image+Manquante";
-                      e.target.className =
-                        "absolute top-0 left-0 w-full h-full object-contain p-4 bg-gray-100";
-                    }}
-                  />
+              <div className="relative h-48 w-full">
+                {Array.isArray(dish.image) && dish.image.length > 0 ? (
+                  <Slider {...sliderSettings}>
+                    {dish.image.map((img, index) => (
+                      <div key={index} className="h-48 flex items-center justify-center p-2">
+                        <img
+                          src={typeof img === "string" && img.startsWith("http") ? img : `${apiUrl}${img}`}
+                          alt={`${dish.title} ${index + 1}`}
+                          className="max-h-full max-w-full object-contain"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/300x225?text=Image+Manquante";
+                            e.target.className = "max-h-full max-w-full object-contain p-4 bg-gray-100";
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </Slider>
                 ) : (
-                  <div className="absolute top-0 left-0 w-full h-full bg-gray-100 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                     <span className="text-gray-400 text-sm">Pas d'image</span>
                   </div>
                 )}
@@ -185,28 +231,32 @@ const DesktopDailyMenu = () => {
         )}
       </div>
 
-      {/* 📢 Publicités depuis localhost */}
-      {publicites.length > 0 && (
+      {/* Publicités */}
+     {publicites.length > 0 && (
   <div className="my-8">
     <h3 className="text-lg font-bold mb-4 text-center">Publicités</h3>
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <Slider {...pubSliderSettings}>
       {publicites.map((pub) => (
-        <div key={pub._id} className="bg-white shadow rounded-lg overflow-hidden">
-          <img
-            src={pub.imageUrl}
-            alt={pub.titre}
-            className="w-full h-40 object-cover"
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/400x150?text=Image+non+trouvée";
-            }}
-          />
-          <div className="p-4">
-            <h4 className="font-semibold">{pub.titre}</h4>
-            <p className="text-sm text-gray-600">{pub.description}</p>
+        <div key={pub._id} className="px-2">
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <div className="h-48 w-full overflow-hidden">
+              <img
+                src={pub.imageUrl}
+                alt={pub.titre}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/400x150?text=Image+non+trouvée";
+                }}
+              />
+            </div>
+            <div className="p-4">
+              <h4 className="font-semibold">{pub.titre}</h4>
+              <p className="text-sm text-gray-600">{pub.description}</p>
+            </div>
           </div>
         </div>
       ))}
-    </div>
+    </Slider>
   </div>
 )}
 

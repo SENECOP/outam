@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";import DashboardLayout from "../components/DashboardLayout";
+import { useParams } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout";
 import {
   LineChart,
   Line,
@@ -9,19 +10,44 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  BarChart,
+  Bar
 } from "recharts";
+import { BarChart as BarChartIcon, Home, List, ShoppingCart, User, LogOut, Menu } from "lucide-react";
 
 export default function Analyses() {
-  const jours = ['S', 'D', 'L', 'M', 'M', 'J', 'V'];
-  const scanData = [30, 25, 55, 35, 45, 50, 20];
-  const commandesData = [28, 35, 55, 48, 43, 57, 29];
-  const moyenneItems = [5, 3, 3, 4, 4, 8, 3];
+  const jours = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  const heures = Array.from({length: 24}, (_, i) => i);
+  const [scanData, setScanData] = useState([30, 25, 55, 35, 45, 50, 20]);
+  const [commandesData, setCommandesData] = useState([28, 35, 55, 48, 43, 57, 29]);
+  const [moyenneItems, setMoyenneItems] = useState([5, 3, 3, 4, 4, 8, 3]);
+  const [topPlats, setTopPlats] = useState([]);
+  const [picCommandes, setPicCommandes] = useState([]);
   
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState("all"); // ✅ filtre local
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("jour");
   const { restaurantId } = useParams();
   const apiUrl = process.env.REACT_APP_API_URL;
+
+  // Données factices pour la démo
+  useEffect(() => {
+    // Simuler des données pour les plats les plus commandés
+    setTopPlats([
+      { name: "Poulet Braisé", count: 45 },
+      { name: "Poisson Grillée", count: 38 },
+      { name: "Riz Sauce", count: 32 },
+      { name: "Attiéké Poisson", count: 28 },
+      { name: "Alloco", count: 25 }
+    ]);
+
+    // Simuler des données pour les pics de commande
+    setPicCommandes(heures.map(h => ({
+      heure: `${h}h`,
+      commandes: h === 12 ? 35 : h === 19 ? 42 : Math.floor(Math.random() * 20) + 5
+    })));
+  }, []);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -30,6 +56,9 @@ export default function Analyses() {
           `${apiUrl}/api/restaurant/${restaurantId}/commandes`
         );
         setOrders(res.data);
+        
+        // Calculer les indicateurs à partir des commandes
+        calculateIndicators(res.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -37,8 +66,14 @@ export default function Analyses() {
       }
     };
 
+    const calculateIndicators = (orders) => {
+      // Ici vous devriez implémenter la logique pour calculer les vrais indicateurs
+      // à partir des données des commandes en fonction du filtre de temps
+      // Pour l'exemple, nous utilisons des données factices
+    };
+
     fetchOrders();
-  }, [restaurantId]);
+  }, [restaurantId, timeFilter]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -71,42 +106,25 @@ export default function Analyses() {
     }
   };
 
-  // ✅ Applique le filtre
   const filteredOrders =
     filterStatus === "all"
       ? orders
       : orders.filter((order) => order.status === filterStatus);
 
   const renderBarChart = (data) => {
-    const maxY = 60;
-    const yTicks = [60, 50, 40, 30, 20, 10, 0];
-
     return (
-      <div className="flex">
-        {/* Axe Y */}
-        <div className="flex flex-col justify-between h-40 mr-2">
-          {yTicks.map((val, i) => (
-            <span key={i} className="text-xs text-gray-500" style={{ height: 'calc(100% / 7)' }}>
-              {val}
-            </span>
-          ))}
-        </div>
-
-        {/* Barres */}
-        <div className="flex items-end justify-between h-40 px-2 w-full">
-          {data.map((val, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <div
-                className="w-6 bg-blue-500 rounded"
-                style={{ height: `${(val / maxY) * 160}px` }}
-              ></div>
-              <span className="text-xs mt-1">{jours[i]}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="count" fill="#3b82f6" />
+        </BarChart>
+      </ResponsiveContainer>
     );
   };
+
   const renderLineChart = (data, label) => {
     const chartData = data.map((val, i) => ({
       name: jours[i],
@@ -114,11 +132,11 @@ export default function Analyses() {
     }));
   
     return (
-      <ResponsiveContainer width="100%" height={160}>
-        <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
-          <YAxis width={30} tick={{ fontSize: 12 }} />
+          <YAxis />
           <Tooltip />
           <Line
             type="monotone"
@@ -133,233 +151,207 @@ export default function Analyses() {
     );
   };
 
+  const renderPicCommandesChart = () => {
+    return (
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={picCommandes}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="heure" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="commandes" fill="#3b82f6" />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
+
+  const TimeFilterSelect = ({ value, onChange }) => (
+    <select 
+      value={value} 
+      onChange={onChange}
+      className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500 text-white"
+    >
+      <option value="jour">Jour</option>
+      <option value="semaine">Semaine</option>
+      <option value="mois">Mois</option>
+    </select>
+  );
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6 bg-white">
-        <h2 className="text-lg font-semibold">Dans cet espace, vous pouvez voir vos states</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-          {/* Cartes stats */}
-          <div className="grid grid-cols-2 gap-4 md:col-span-3">
-            <div className="bg-white shadow p-4 rounded space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">commandes</span>
-                <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-  <option className="bg-green-500 text-white">Jour</option>
-  <option className="bg-green-500 text-white">Semaine</option>
-  <option className="bg-green-500 text-white">Mois</option>
-  <option className="bg-green-500 text-white">Année</option>
-</select>
-
+      <div className="flex h-screen bg-gray-100">
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto p-4 ml-1">
+            <div className="flex items-center mb-6">
+              <div className="bg-purple-500 p-3 rounded-full mr-4 shadow-md">
+                <BarChartIcon size={20} className="text-white" />
               </div>
-              <div className="text-xl font-bold">500</div>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Analyse des données
+              </h1>
             </div>
 
-            <div className="bg-white shadow p-4 rounded space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Moyenne par jour</span>
-                <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-                  <option>Jour</option>
-                </select>
+            <div className="p-4 w-full bg-white shadow rounded">
+              <h2 className="text-lg font-semibold mb-4">Indicateurs clés</h2>
+
+              {/* Filtre temporel global */}
+              <div className="mb-4 flex justify-end">
+                <TimeFilterSelect 
+                  value={timeFilter}
+                  onChange={(e) => setTimeFilter(e.target.value)}
+                />
               </div>
-              <div className="text-xl font-bold">12</div>
-            </div>
 
-            <div className="bg-white shadow p-4 rounded space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Revenus Aujourd'hui</span>
-                {/* <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-                  <option>Jour</option>
-                </select> */}
+              {/* Cartes stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <StatCard 
+                  title="Commandes totales" 
+                  value="500" 
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+                <StatCard 
+                  title="Commandes du jour" 
+                  value="24" 
+                />
+                <StatCard 
+                  title="Revenu total" 
+                  value="125 500 FCFA" 
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+                <StatCard 
+                  title="Revenu du jour" 
+                  value="75 000 FCFA" 
+                />
               </div>
-              <div className="text-xl font-bold">75 000 <span className="text-sm">FCFA</span></div>
-            </div>
 
-            <div className="bg-white shadow p-4 rounded space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Revenus total</span>
-                <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-                  <option>Jour</option>
-                </select>
+              {/* Graphiques principaux */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <ChartCard 
+                  title="Nombre de scans QR Code"
+                  chart={renderBarChart(topPlats)}
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+                <ChartCard 
+                  title="Plats les plus commandés"
+                  chart={renderBarChart(topPlats)}
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
               </div>
-              <div className="text-xl font-bold">125 500 <span className="text-sm">FCFA</span></div>
-            </div>
-          </div>
 
-          {/* Histogramme avec axe Y */}
-          <div className="bg-white shadow p-4 rounded h-full space-y-2 md:col-span-2">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium">Nombre de scan</span>
-              <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-                <option>Jour</option>
-              </select>
-            </div>
-            {renderBarChart(scanData)}
-          </div>
-        </div>
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <ChartCard 
+                  title="Nombre de commandes"
+                  chart={renderLineChart(commandesData)}
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+                <ChartCard 
+                  title="Moyenne items par commande"
+                  chart={renderLineChart(moyenneItems)}
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+              </div>
 
-        {/* Graphiques lignes */}
-        <div className="grid md:grid-cols-2 gap-4">
-  <div className="bg-white shadow p-4 rounded">
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-sm font-medium">Nombre de commande</span>
-      <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-        <option>Jour</option>
-      </select>
-    </div>
-    {renderLineChart(commandesData, "Nombre de commande")}
-  </div>
+              <div className="mb-6">
+                <ChartCard 
+                  title="Pic de commandes par heure"
+                  chart={renderPicCommandesChart()}
+                  filter={<TimeFilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} />}
+                />
+              </div>
 
-  <div className="bg-white shadow p-4 rounded">
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-sm font-medium">Moyenne item par commande</span>
-      <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-        <option>Jour</option>
-      </select>
-    </div>
-    {renderLineChart(moyenneItems, "Moyenne")}
-  </div>
-</div>
-<div className="grid md:grid-cols-5 gap-8"> {/* Augmenter l'espace avec gap-6 */}
-  {/* Card Nombre de commande (colonne 1, pas d'étendue) */}
-  <div className="bg-white shadow p-2 rounded">
-    <div className="p-4 flex items-start">
-    <img
-  src="/assets/t.jpeg"  // Chemin de l'image statique
-  alt="Description de l'image"
-  className="w-16 h-16 rounded-md object-cover mr-4"
-  onError={(e) => {
-    e.target.src = 'https://via.placeholder.com/64';
-    e.target.onerror = null;
-  }}
-/>
-
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start">
+              {/* Historique des commandes */}
+              <div className="p-4 bg-white shadow rounded">
+                <h1 className="text-xl font-bold mb-4">Historique des commandes</h1>
+                {loading ? (
+                  <p>Chargement des commandes...</p>
+                ) : filteredOrders.length === 0 ? (
+                  <p>Aucune commande trouvée pour ce statut.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left border-b">
+                          <th className="p-3">Commande</th>
+                          <th className="p-3">Montant</th>
+                          <th className="p-3">Statut</th>
+                          <th className="p-3">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredOrders.map((order) => (
+                          <tr key={order._id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                <span className="bg-pink-500 text-white p-2 rounded-full">
+                                  🍽️
+                                </span>
                                 <div>
-                                  <h1 className="font-semibold text-gray-800">
-                                    <p>Dejeuner </p>
-                                    <span className="text-blue-600 ml-2">
-                                      {/* {item.price ? `${item.price} FCFA` : 'Prix non disponible'} */}
-                                    </span>
-                                  </h1>
-                                  <p className="text-green-500">
-                                    {/* {item.category || 'Catégorie non définie'} */}
+                                  <p className="font-semibold">
+                                    Commande #{order._id.slice(-6)}
                                   </p>
-    
-                                 
+                                  <p className="text-sm text-gray-500">
+                                    {new Date(order.date).toLocaleString()}
+                                  </p>
                                 </div>
-                                
                               </div>
-    
-                             
-                            </div>
-                          </div>
-  </div>
-
-  {/* Card étendue sur 3 colonnes (col-span-3) */}
-  <div className="bg-white shadow p-4 gap-8 rounded md:col-span-3 flex flex-col justify-between">
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-sm font-medium">Moyenne item par commande</span>
-      <select className="text-xs border border-gray-300 rounded px-2 py-1 bg-green-500">
-        <option>Jour</option>
-      </select>
-    </div>
-    {renderLineChart(moyenneItems, "Moyenne")}
-  </div>
-</div>
-<div className="p-4 w-full bg-white shadow rounded">
-          <h1 className="text-2xl font-bold mb-4">Hisorique des commandes</h1>
-
-          {loading ? (
-            <p>Chargement des commandes...</p>
-          ) : filteredOrders.length === 0 ? (
-            <p>Aucune commande trouvée pour ce statut.</p>
-          ) : (
-            <table className="w-full bg-white shadow rounded">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="p-3">Nom de la commande</th>
-                  <th className="p-3">Montant</th>
-                  <th className="p-3">Statut</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => (
-                  <tr
-                    key={order._id}
-                    className="border-b hover:bg-gray-50"
-                  >
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-pink-500 text-white p-2 rounded-full">
-                          🍽️
-                        </span>
-                        <div>
-                          <p className="font-semibold">
-                            Commande #{order._id.slice(-6)}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {new Date(order.date).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      {(order.total || 0).toLocaleString()} FCFA
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-white px-3 py-1 rounded-full text-sm ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {order.status || "en attente"}
-                        </span>
-                        <p className="text-xs text-gray-500">Payé</p>
-                      </div>
-                    </td>
-                    <td className="p-3 flex items-center gap-2">
-                      <select
-                        value={order.status || ""}
-                        onChange={(e) =>
-                          handleStatusChange(order._id, e.target.value)
-                        }
-                        className="text-sm px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 transition"
-                      >
-                        <option value="" disabled>
-                          Changer le statut
-                        </option>
-                        <option value="en attente" className="text-black">
-                          En attente
-                        </option>
-                        <option value="en cuisine" className="text-black">
-                          En cuisine
-                        </option>
-                        <option value="Prête" className="text-black">
-                          Prête
-                        </option>
-                      </select>
-
-                      <button className="w-8 h-8 flex items-center justify-center rounded bg-gray-400 hover:bg-gray-500 transition">
-                        <span className="text-white text-lg">⋮</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                            </td>
+                            <td className="p-3">
+                              {(order.total || 0).toLocaleString()} FCFA
+                            </td>
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-white px-3 py-1 rounded-full text-sm ${getStatusColor(order.status)}`}>
+                                  {order.status || "en attente"}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-3">
+                              <select
+                                value={order.status || ""}
+                                onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                                className="text-sm px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700 transition"
+                              >
+                                <option value="" disabled>Changer statut</option>
+                                <option value="en attente">En attente</option>
+                                <option value="en cuisine">En cuisine</option>
+                                <option value="Prête">Prête</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </main>
         </div>
-
-
-
-
-
       </div>
     </DashboardLayout>
   );
 }
+
+// Composants réutilisables
+
+const StatCard = ({ title, value, filter }) => (
+  <div className="bg-white shadow p-4 rounded space-y-2">
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-gray-600">{title}</span>
+      {filter}
+    </div>
+    <div className="text-xl font-bold">{value}</div>
+  </div>
+);
+
+const ChartCard = ({ title, chart, filter }) => (
+  <div className="bg-white shadow p-4 rounded space-y-4">
+    <div className="flex justify-between items-center">
+      <span className="text-sm font-medium">{title}</span>
+      {filter}
+    </div>
+    <div className="h-64">
+      {chart}
+    </div>
+  </div>
+);

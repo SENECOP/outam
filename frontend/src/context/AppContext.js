@@ -33,7 +33,6 @@ export const AppProvider = ({ children }) => {
 
   const loginUser = (userData) => {
     setUser(userData);
-    // Si l'utilisateur a un restaurant associé
     if (userData?.restaurant) {
       setCurrentRestaurant(userData.restaurant);
       localStorage.setItem(
@@ -55,7 +54,23 @@ export const AppProvider = ({ children }) => {
     setUser(null);
     setCurrentRestaurant(null);
   };
+
   const [categories, setCategories] = useState([]);
+
+  // Charger les catégories depuis le localStorage au démarrage
+  useEffect(() => {
+    const storedCategories = localStorage.getItem('categories');
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    }
+  }, []);
+
+  // Sauvegarder les catégories dans le localStorage chaque fois qu'elles changent
+  useEffect(() => {
+    if (categories.length > 0) {
+      localStorage.setItem('categories', JSON.stringify(categories));
+    }
+  }, [categories]);
 
   // Ajouter une nouvelle catégorie
   const addCategory = (newCategory) => {
@@ -70,6 +85,7 @@ export const AppProvider = ({ children }) => {
       return updatedCategories;
     });
   };
+
   // Valeurs exposées par le contexte
   const contextValue = {
     user,
@@ -78,7 +94,9 @@ export const AppProvider = ({ children }) => {
     loginUser,
     logoutUser,
     setRestaurant,
-    categories, addCategory, removeCategory,
+    categories, 
+    addCategory, 
+    removeCategory,
   };
 
   return (
