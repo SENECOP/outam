@@ -22,16 +22,19 @@ const validateMenuItem = (req, res, next) => {
 
 // Configuration de Multer pour le stockage des fichiers
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname));
-    }
-  });
-  
-  const upload = multer({ storage: storage });
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../uploads'); // Chemin relatif vers backend/uploads
+    fs.mkdir(uploadDir, { recursive: true }, (err) => {
+      if (err) return cb(err);
+      cb(null, uploadDir);
+    });
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
 
+const upload = multer({ storage: storage });
 router.post('/registeresto', async (req, res) => {
     const { name, email, motDePasse, commercantName } = req.body;
   
@@ -503,43 +506,53 @@ router.patch('/:restaurantId/menus/:menuId/status', async (req, res) => {
 // Dans votre fichier de routes (backend)
 
 
-// Route modifiée pour gérer plusieurs images
+// Route modifiée pour gérer plusieurs image
 router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
     const { restaurantId } = req.params;
     const { name, day } = req.body;
     
     try {
+        // 1. Validation de base
         const restaurant = await Restaurant.findById(restaurantId);
         if (!restaurant) {
             return res.status(404).json({ success: false, message: "Restaurant non trouvé" });
         }
 
-        // Validation du jour
         const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
         if (!days.includes(day.toLowerCase())) {
             return res.status(400).json({ success: false, message: "Jour invalide" });
         }
 
-        // Récupération des données des plats
+        // 2. Traitement des plats
         let dishes = [];
         if (req.body.dishes) {
-            // Si les plats sont envoyés en JSON stringifié
             dishes = typeof req.body.dishes === 'string' 
                 ? JSON.parse(req.body.dishes) 
                 : req.body.dishes;
         }
 
-        // Association des images aux plats
-        const files = req.files || [];
-        const dishesWithImages = dishes.map((dish, index) => {
-            const imageFile = files.find(f => f.fieldname === `dishes[${index}][image]`);
-            return {
-                ...dish,
-                price: Number(dish.price),
-                image: imageFile ? '/uploads/' + imageFile.filename : 'default-image.jpg'
-            };
+        // 3. Organisation des fichiers uploadés
+        const filesMap = {};
+        (req.files || []).forEach(file => {
+            const matches = file.fieldname.match(/dishes\[(\d+)\]\[image\]\[(\d+)\]/);
+            if (matches) {
+                const dishIndex = matches[1];
+                const imageIndex = matches[2];
+                if (!filesMap[dishIndex]) filesMap[dishIndex] = [];
+                filesMap[dishIndex][imageIndex] = '/uploads/' + file.filename;
+            }
         });
 
+        // 4. Construction des plats avec leurs images
+        const dishesWithImages = dishes.map((dish, index) => ({
+            title: dish.title,
+            description: dish.description,
+            price: Number(dish.price),
+            category: dish.category,
+            image: filesMap[index] || ['default-image.jpg'] // Notez le tableau pour 'image'
+        }));
+
+        // 5. Création et sauvegarde du menu
         const newMenu = {
             name,
             day: day.toLowerCase(),
@@ -556,6 +569,7 @@ router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
             message: "Menu créé avec succès",
             data: newMenu 
         });
+
     } catch (error) {
         console.error("Erreur création menu:", error);
         res.status(500).json({ 
@@ -565,29 +579,29 @@ router.post('/:restaurantId/menus', upload.any(), async (req, res) => {
         });
     }
 });
-router.get('/:id/menus/active', async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      const restaurant = await Restaurant.findById(id);
-      if (!restaurant) {
-        return res.status(404).json({ message: 'Restaurant non trouvé' });
-      }
-  
-      // Trouver le premier menu actif
-      const activeMenu = restaurant.menus.find(menu => menu.isActive);
-  
-      if (!activeMenu) {
-        return res.status(200).json({ message: 'Aucun menu actif trouvé' });
-      }
-  
-      res.status(200).json({ menu: activeMenu });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Erreur serveur', error: error.message });
-    }
-  });
 
+router.get('/:id/menus/active', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const restaurant = await Restaurant.findById(id);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant non trouvé' });
+    }
+
+    const activeMenu = restaurant.menus.find(menu => menu.isActive);
+
+    if (!activeMenu) {
+      return res.status(200).json({ message: 'Aucun menu actif trouvé' });
+    }
+
+    // Les plats sont déjà embarqués dans le menu
+    res.status(200).json({ menu: activeMenu });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
+});
 router.post('/:restaurantId/menus/:menuId/dishes', upload.single('image'), validateMenuItem, async (req, res) => {
     const { restaurantId, menuId } = req.params;
     const { title, description, price, category } = req.body;
@@ -857,16 +871,22 @@ router.post("/:restaurantId/commandes", async (req, res) => {
 
 
 // GET /api/restaurant/:id/commandes
+// GET /api/restaurant/:id/commandes
 router.get("/:id/commandes", async (req, res) => {
   try {
     const commandes = await Commande.find({ restaurant: req.params.id })
-      .populate("restaurant")
-      .populate("dish", "_id name"); // Peuple seulement _id et name pour l'efficacité
+      .populate({
+        path: 'dish', // Le champ à peupler
+        model: 'Restaurant', // Nom du modèle, puisque c'est un sous-schéma
+        select: 'title description price category' // Champs à récupérer du plat
+      });
+    
     res.status(200).json(commandes);
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", error: err });
   }
 });
+
 // PUT /api/restaurant/:restaurantId/commandes/:commandeId/status
 router.put("/:restaurantId/commandes/:commandeId/status", async (req, res) => {
   try {
@@ -885,57 +905,25 @@ router.put("/:restaurantId/commandes/:commandeId/status", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
-router.get("/:id/commandes/dish-counts", async (req, res) => {
-  try {
-    const results = await Commande.aggregate([
-      {
-        $match: {
-          restaurant: new mongoose.Types.ObjectId(req.params.id)
-        }
-      },
-      {
-        $group: {
-          _id: "$dish",
-          count: { $sum: 1 }
-        }
-      },
-      {
-        $lookup: {
-          from: "dishes",
-          localField: "_id",
-          foreignField: "_id",
-          as: "dish"
-        }
-      },
-      { $unwind: "$dish" },
-      {
-        $project: {
-          dishId: "$dish._id",
-          dishName: "$dish.name",
-          count: 1
-        }
-      }
-    ]);
-
-    res.json(results);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur lors du comptage des commandes." });
-  }
-});
-
+// GET /api/restaurant/:id/commandes/dish-counts
 router.get("/:id/commandes/dish-counts", async (req, res) => {
   try {
     const results = await Commande.aggregate([
       { $match: { restaurant: mongoose.Types.ObjectId(req.params.id) } },
-      { $group: { _id: "$dish", count: { $sum: 1 } } },
-      { 
-        $project: { 
-          dishId: "$_id",
-          count: 1,
-          _id: 0 
-        } 
-      }
+      { $group: { _id: "$dish", count: { $sum: 1 } } }, // Compte le nombre de fois où chaque plat a été commandé
+      { $lookup: { 
+        from: "restaurants", // Assure-toi que "restaurants" est le nom de la collection de ton modèle Restaurant
+        localField: "_id", 
+        foreignField: "menus.dishes._id", 
+        as: "dish" 
+      }},
+      { $unwind: "$dish" },
+      { $project: { 
+        dishId: "$_id",
+        count: 1,
+        name: "$dish.menus.dishes.title", // Extrait le titre du plat
+        _id: 0 
+      }},
     ]);
 
     res.json(results);
@@ -944,4 +932,45 @@ router.get("/:id/commandes/dish-counts", async (req, res) => {
     res.status(500).json({ message: "Erreur serveur" });
   }
 });
+
+router.post('/:dishId/categories', async (req, res) => {
+  const { dishId } = req.params;
+  const { category } = req.body;
+
+  try {
+    const dish = await Dish.findById(dishId);
+    if (!dish) {
+      return res.status(404).json({ message: 'Plat non trouvé' });
+    }
+
+    if (!dish.categories.includes(category)) {
+      dish.categories.push(category);
+      await dish.save();
+      res.status(201).json({ message: 'Catégorie ajoutée avec succès' });
+    } else {
+      res.status(400).json({ message: 'Cette catégorie est déjà associée à ce plat' });
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de la catégorie:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// GET - Récupérer les catégories d'un plat
+router.get('/:dishId/categories', async (req, res) => {
+  const { dishId } = req.params;
+
+  try {
+    const dish = await Dish.findById(dishId);
+    if (!dish) {
+      return res.status(404).json({ message: 'Plat non trouvé' });
+    }
+    res.json(dish.categories);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des catégories:', error);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+
 module.exports = router;

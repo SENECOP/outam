@@ -8,8 +8,8 @@ const commandeSchema = new mongoose.Schema({
   },
   dish: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Dish",
-    required: true,
+    ref: 'Restaurant.menus.dishes', // Référence à un plat dans un menu du restaurant
+    required: true
   },
   extras: [
     {
