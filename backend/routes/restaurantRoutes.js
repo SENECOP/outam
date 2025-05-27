@@ -122,7 +122,45 @@ router.post('/restaurants', async (req, res) => {
     }
 });
 // Importations nécessaires
-
+router.get('/restaurants', async (req, res) => {
+  try {
+    // On peut sélectionner les champs à renvoyer si besoin (ex: name, _id, etc.)
+    const restaurants = await Restaurant.find().select('-commercantInfo.motDePasse -commercantInfo.resetPasswordToken -commercantInfo.resetPasswordExpires');
+    res.status(200).json(restaurants);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de tous les restaurants:", error);
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+});
+// Met à jour un restaurant par son ID
+router.put('/restaurants/:id', async (req, res) => {
+  try {
+    // Les champs à mettre à jour sont dans req.body
+    const updated = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updated) {
+      return res.status(404).json({ message: 'Restaurant non trouvé' });
+    }
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
+});
+// Supprime un restaurant par son ID
+router.delete('/restaurants/:id', async (req, res) => {
+  try {
+    const deleted = await Restaurant.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: 'Restaurant non trouvé' });
+    }
+    res.json({ message: 'Restaurant supprimé avec succès.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur serveur', error: error.message });
+  }
+});
 // Route de connexion
 router.post('/login', async (req, res) => {
   const { email, motDePasse } = req.body;
