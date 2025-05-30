@@ -6,6 +6,8 @@ import Finances from "./Finances";
 import Public from "./Public";
 import Rapport from "./Rapport";
 import Parametres from "./Parametres";
+import { useAdminAuth } from "./AdminAuthContext";
+import { useNavigate } from 'react-router-dom';
 
 
 // For dummy charts, you can use packages like react-chartjs-2 or recharts. Here we use SVG placeholders.
@@ -328,27 +330,44 @@ function LastProjects() {
 }
 export default function Dashboard() {
   const [activePage, setActivePage] = useState("");
+  const { admin } = useAdminAuth();
+  const navigate = useNavigate();
+
+const handleLogout = () => {
+  // Supprimer le token et les infos admin
+  localStorage.removeItem('token');
+  localStorage.removeItem('superAdmin');
+
+  // Redirection vers la page de connexion
+  navigate('/login');
+};
+
+
   return (
     <div className="flex h-screen bg-[#F1F3FA]">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r flex flex-col">
         <div className="flex items-center px-8 py-6">
-          <img src="https://dummyimage.com/40x40/ccc/fff.png&text=E" alt="Logo" className="w-8 h-8 rounded-full" />
+          <img src="assets/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
           <span className="text-2xl font-bold ml-2 text-[#ed4747]">Outam</span>
         </div>
         <div className="flex flex-col items-center">
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            className="w-16 h-16 rounded-full border-4 border-gray-200"
-            alt="User"
-          />
-          <p className="mt-3 font-semibold text-gray-700">Casque Nowak</p>
-          <p className="text-gray-400 text-sm">Responsable administratif</p>
-          <div className="flex space-x-2 mt-2 text-gray-400">
-            <button><i className="fas fa-cog" /></button>
-            <button><i className="fas fa-power-off" /></button>
-          </div>
-        </div>
+  <img
+    src={admin?.photoProfil || "https://dummyimage.com/100x100/ccc/fff.png&text=?"}
+    className="w-16 h-16 rounded-full border-4 border-gray-200"
+    alt={admin?.fullname || "Utilisateur"}
+  />
+  <p className="mt-3 font-semibold text-gray-700">{admin?.fullname || "Admin"}</p>
+  <p className="text-gray-400 text-sm">{admin?.fonction || "Fonction inconnue"}</p>
+  <div className="flex space-x-2 mt-2 text-gray-400">
+  <button><i className="fas fa-cog" /></button>
+  <button onClick={handleLogout}>
+    <i className="fas fa-power-off" />
+  </button>
+</div>
+
+</div>
+
       <nav className="flex-1 mt-8 px-6">
   <h5 className="text-xs mb-2 text-gray-400">NAVIGATION</h5>
   <ul className="space-y-4">
@@ -454,13 +473,14 @@ export default function Dashboard() {
           <i className="far fa-bell text-xl text-gray-400 relative">
             <span className="absolute -top-2 -right-1 bg-red-500 text-white text-xs rounded-full px-1">9</span>
           </i>
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
+         <img
+            src={admin.photoProfil}
             className="w-8 h-8 rounded-full border-2 border-gray-200"
-            alt="User"
+            alt={admin.fullname}
           />
-          <span>Nowak</span>
+          <span>{admin.fullname}</span>
           <i className="fas fa-cog text-gray-400" />
+
         </div>
       </div>
 

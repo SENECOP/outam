@@ -22,14 +22,19 @@ import OrderSummary from './pages/OrderSummary';
 import OrdersList from './pages/OrdersList';
 import CartPage from './pages/CartPage';
 import Dashboard from './pages/superadmin/Dashboard';
+import { AdminAuthProvider } from './pages/superadmin/AdminAuthContext';
+import Login from './pages/superadmin/Login';
+import LandingPageRestaurant from './pages/LandingPageRestaurant';
 function App() {
   return (
     <BrowserRouter>
     <AppProvider>
+    <AdminAuthProvider>
     <CookiesProvider>  {/* Envelopper l'application dans CookiesProvider */}
     
         <Routes>
-          <Route path="/" element={<LoginRestaurant />} />
+          <Route path="/" element={<LandingPageRestaurant />} />
+           <Route path="/loginresto" element={<LoginRestaurant />} />
           <Route path="/register" element={<Register />} />
           {/* <Route path="/registeresto" element={<Registerresto />} /> */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -52,11 +57,12 @@ function App() {
           <Route path="/order-summary" element={<OrderSummary />} />
           <Route path="/restaurant/:restaurantId/orders" element={<OrdersList />} />
           <Route path="/cart" element={<CartPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-  
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
           </Routes>
-        </CookiesProvider>
-      </AppProvider>
+    </CookiesProvider>
+    </AdminAuthProvider>
+    </AppProvider>
     </BrowserRouter>
   );
 }
